@@ -39,7 +39,7 @@ export default function ProfilePage() {
               </div>
 
               <h2 className="mt-4 text-xl font-semibold text-[#172636]">
-                Alex Johnson
+                Ali
               </h2>
 
               <p className="mt-1 text-sm text-[#00999d]">
@@ -61,7 +61,7 @@ export default function ProfilePage() {
                 <InfoRow
                   icon={<Mail size={16} />}
                   label="Email"
-                  value="alex@example.com"
+                  value="ali123@example.com"
                 />
 
                 <InfoRow

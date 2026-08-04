@@ -4,7 +4,7 @@ import TeacherDashboard from "@/components/dashboard/TeacherDashboard";
 export default function TeacherPage() {
   return (
     <>
-      <Sidebar role="teacher" />
+      <Sidebar />
 
       <main className="ml-64">
         <TeacherDashboard />
