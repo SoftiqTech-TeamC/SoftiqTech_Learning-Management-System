@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import {
   Bell,
   Flame,
@@ -426,23 +428,20 @@ function CourseCard({
 }: {
   course: (typeof courses)[number];
 }) {
-  const Icon = course.icon;
-
   return (
-    <div className="overflow-hidden rounded-xl border border-[#e5e9ea] bg-white">
+    <div className="overflow-hidden rounded-xl border border-[#e5e9ea] bg-white shadow-sm hover:shadow-lg transition">
+      {/* Course Image */}
       <div
-        className="relative h-[105px] bg-cover bg-center"
+        className="relative h-[105px] bg-cover"
         style={{
           backgroundImage: `url(${course.image})`,
+          backgroundPosition: "center 15%", // 👈 Image thori upar hogi
         }}
       >
-        <div className="absolute inset-0 bg-black/15" />
-
-        <div className="absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#075f69]/90 text-white">
-          <Icon size={14} />
-        </div>
+        <div className="absolute inset-0 bg-black/10" />
       </div>
 
+      {/* Card Content */}
       <div className="p-3">
         <h3 className="truncate text-[10px] font-semibold text-[#172636]">
           {course.title}

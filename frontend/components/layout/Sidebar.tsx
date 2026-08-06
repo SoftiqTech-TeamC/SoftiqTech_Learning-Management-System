@@ -22,7 +22,7 @@ const navigation = [
   {
     label: "My Courses",
     icon: BookOpen,
-    href: "#",
+    href: "/courses",
   },
   {
     label: "Calendar",
@@ -61,7 +61,13 @@ const navigation = [
   },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  active?: string;
+}
+
+export default function Sidebar({
+  active = "Dashboard",
+}: SidebarProps) {
   return (
     <aside className="fixed inset-y-0 left-0 z-50 flex w-[220px] flex-col bg-[#172636] text-white">
       {/* Logo */}
@@ -86,27 +92,20 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 px-3 pt-5">
         <div className="space-y-2">
-          {navigation.map((item, index) => {
+          {navigation.map((item) => {
             const Icon = item.icon;
-            const active = index === 0;
 
             return (
               <Link
                 key={item.label}
                 href={item.href}
                 className={`flex h-[44px] items-center gap-4 rounded-lg px-4 text-[13px] transition ${
-                  active
-                    ? "bg-[#075f69] text-white"
+                  active === item.label
+                    ? "bg-[#08a7aa] text-white"
                     : "text-white/65 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <Icon
-                  size={18}
-                  strokeWidth={1.7}
-                  className={
-                    active ? "text-[#08c4c4]" : ""
-                  }
-                />
+                <Icon size={18} strokeWidth={1.7} />
 
                 <span>{item.label}</span>
               </Link>
@@ -135,9 +134,7 @@ export default function Sidebar() {
             </p>
           </div>
 
-          <span className="ml-auto text-white/50">
-            ›
-          </span>
+          <span className="ml-auto text-white/50">›</span>
         </Link>
       </div>
     </aside>
