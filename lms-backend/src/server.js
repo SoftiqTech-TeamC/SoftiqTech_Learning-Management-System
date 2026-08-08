@@ -4,6 +4,8 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
+const notificationRoutes = require('./routes/notification.routes');
+
 
 const app = express();
 
@@ -16,6 +18,8 @@ app.get('/', (req, res) => res.send('LMS API running'));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
+
 
 // basic 404 handler
 app.use((req, res) => {
