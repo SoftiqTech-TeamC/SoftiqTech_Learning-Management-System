@@ -2,33 +2,119 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleRegister = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+
+    setError("");
+
+    // Check password confirmation
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: fullName,
+            email,
+            password,
+            role: "student",
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          setError("This email is already registered.");
+        } else if (response.status === 400) {
+          setError(
+            data.message || "Please fill in all required fields."
+          );
+        } else {
+          setError(
+            data.message || "Registration failed. Please try again."
+          );
+        }
+
+        return;
+      }
+
+      // Save token
+      localStorage.setItem("token", data.token);
+
+      // Save user
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Go to dashboard
+      router.push("/student");
+    } catch (error) {
+      console.error("Registration error:", error);
+
+      setError(
+        "Unable to connect to the server. Make sure the backend is running."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-white lg:grid lg:grid-cols-2">
+    <main className="grid min-h-screen lg:grid-cols-2">
+
       {/* LEFT SIDE - IMAGE */}
+
       <section className="relative hidden min-h-screen lg:block">
         <img
           src="/register-learning.jpg"
-          alt="Students learning together"
-          className="absolute inset-0 h-full w-full object-cover"
+          alt="Learning"
+          className="h-full w-full object-cover"
         />
+
+        <div className="absolute inset-0 bg-black/5" />
       </section>
 
       {/* RIGHT SIDE - REGISTER FORM */}
+
       <section className="flex min-h-screen items-center justify-center bg-white px-6 py-10 sm:px-10">
         <div className="w-full max-w-[420px]">
-          
+
           {/* LOGO */}
+
           <div className="mb-7 flex justify-center">
             <Link
               href="/"
               className="flex items-center gap-3"
             >
-              {/* Logo Icon */}
+
               <div className="flex h-12 w-12 items-center justify-center">
                 <svg
                   width="48"
@@ -63,10 +149,12 @@ export default function RegisterPage() {
               <span className="text-[30px] font-bold tracking-tight text-slate-800">
                 Nexus Learning
               </span>
+
             </Link>
           </div>
 
           {/* HEADING */}
+
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">
               Create Your Account
@@ -77,10 +165,23 @@ export default function RegisterPage() {
             </p>
           </div>
 
+          {/* ERROR */}
+
+          {error && (
+            <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
           {/* REGISTER FORM */}
-          <form className="space-y-4">
+
+          <form
+            onSubmit={handleRegister}
+            className="space-y-4"
+          >
 
             {/* FULL NAME */}
+
             <div>
               <label
                 htmlFor="fullName"
@@ -90,6 +191,7 @@ export default function RegisterPage() {
               </label>
 
               <div className="relative">
+
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                   <svg
                     width="16"
@@ -108,12 +210,17 @@ export default function RegisterPage() {
                   id="fullName"
                   type="text"
                   placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
                   className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-4 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />
+
               </div>
             </div>
 
             {/* EMAIL */}
+
             <div>
               <label
                 htmlFor="email"
@@ -123,6 +230,7 @@ export default function RegisterPage() {
               </label>
 
               <div className="relative">
+
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                   <svg
                     width="16"
@@ -139,6 +247,7 @@ export default function RegisterPage() {
                       height="14"
                       rx="2"
                     />
+
                     <path d="M3 7L12 13L21 7" />
                   </svg>
                 </span>
@@ -147,12 +256,17 @@ export default function RegisterPage() {
                   id="email"
                   type="email"
                   placeholder="Enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                   className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-4 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />
+
               </div>
             </div>
 
             {/* PASSWORD */}
+
             <div>
               <label
                 htmlFor="password"
@@ -162,45 +276,37 @@ export default function RegisterPage() {
               </label>
 
               <div className="relative">
+
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <rect
-                      x="5"
-                      y="10"
-                      width="14"
-                      height="10"
-                      rx="2"
-                    />
-                    <path d="M8 10V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V10" />
-                  </svg>
+                  🔒
                 </span>
 
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                   className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-11 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   aria-label="Toggle password visibility"
                 >
                   {showPassword ? "◉" : "◌"}
                 </button>
+
               </div>
             </div>
 
             {/* CONFIRM PASSWORD */}
+
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -210,58 +316,62 @@ export default function RegisterPage() {
               </label>
 
               <div className="relative">
+
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <rect
-                      x="5"
-                      y="10"
-                      width="14"
-                      height="10"
-                      rx="2"
-                    />
-                    <path d="M8 10V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V10" />
-                  </svg>
+                  🔒
                 </span>
 
                 <input
                   id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                  type={
+                    showConfirmPassword
+                      ? "text"
+                      : "password"
+                  }
                   placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) =>
+                    setConfirmPassword(e.target.value)
+                  }
+                  required
                   className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-11 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />
 
                 <button
                   type="button"
                   onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
+                    setShowConfirmPassword(
+                      !showConfirmPassword
+                    )
                   }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   aria-label="Toggle confirm password visibility"
                 >
                   {showConfirmPassword ? "◉" : "◌"}
                 </button>
+
               </div>
             </div>
 
             {/* CREATE ACCOUNT BUTTON */}
+
             <button
               type="submit"
-              className="mt-2 h-11 w-full rounded-md bg-[#087F87] text-sm font-semibold text-white transition hover:bg-[#066B72]"
+              disabled={loading}
+              className="mt-2 h-11 w-full rounded-md bg-[#087F87] text-sm font-semibold text-white transition hover:bg-[#066B72] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Create Account
+              {loading
+                ? "Creating Account..."
+                : "Create Account"}
             </button>
+
           </form>
 
           {/* LOGIN LINK */}
+
           <p className="mt-5 text-center text-xs text-slate-600">
             Already have an account?{" "}
+
             <Link
               href="/login"
               className="font-semibold text-[#087F87] hover:underline"
@@ -269,6 +379,7 @@ export default function RegisterPage() {
               Sign In
             </Link>
           </p>
+
         </div>
       </section>
     </main>

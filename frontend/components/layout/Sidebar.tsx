@@ -20,7 +20,7 @@ const navigation = [
     href: "/student",
   },
   {
-    label: "My Courses",
+    label: "Courses",
     icon: BookOpen,
     href: "/courses",
   },
@@ -70,14 +70,20 @@ export default function Sidebar({
 }: SidebarProps) {
   return (
     <aside className="fixed inset-y-0 left-0 z-50 flex w-[220px] flex-col bg-[#172636] text-white">
+
       {/* Logo */}
       <div className="flex h-[90px] items-center gap-3 px-7">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-[#08a7aa]">
-          <div className="text-xl font-bold text-[#08a7aa]">
-            N
-          </div>
+
+        {/* Exact Logo */}
+        <div className="flex h-11 w-11 items-center justify-center">
+          <img
+            src="/logo.png"
+            alt="Nexus Learning Logo"
+            className="h-40 w-40 object-contain"
+          />
         </div>
 
+        {/* Brand Name */}
         <div>
           <h1 className="text-[16px] font-semibold leading-none">
             Nexus
@@ -105,7 +111,10 @@ export default function Sidebar({
                     : "text-white/65 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <Icon size={18} strokeWidth={1.7} />
+                <Icon
+                  size={18}
+                  strokeWidth={1.7}
+                />
 
                 <span>{item.label}</span>
               </Link>
@@ -134,9 +143,12 @@ export default function Sidebar({
             </p>
           </div>
 
-          <span className="ml-auto text-white/50">›</span>
+          <span className="ml-auto text-white/50">
+            ›
+          </span>
         </Link>
       </div>
+
     </aside>
   );
 }
