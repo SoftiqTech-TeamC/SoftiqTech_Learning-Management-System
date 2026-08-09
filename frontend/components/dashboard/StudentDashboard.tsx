@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { useEffect, useState } from "react";
 
 import {
   Bell,
@@ -51,7 +51,7 @@ const courses = [
   },
   {
     title: "Environmental Science",
-    teacher: "Prof. ",
+    teacher: "Prof.",
     progress: 60,
     image: "/courses/environment.jpg",
     icon: Sprout,
@@ -59,6 +59,24 @@ const courses = [
 ];
 
 export default function StudentDashboard() {
+  const [userName, setUserName] = useState("Student");
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+
+    if (savedUser) {
+      try {
+        const user = JSON.parse(savedUser);
+
+        if (user?.name) {
+          setUserName(user.name);
+        }
+      } catch (error) {
+        console.error("Unable to read user data:", error);
+      }
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#fbfcfc]">
       {/* Header */}
@@ -69,13 +87,11 @@ export default function StudentDashboard() {
               Learning Journey
             </span>
 
-            <span className="text-[#00999d]">
-              〰
-            </span>
+            <span className="text-[#00999d]">〰</span>
           </div>
 
           <h1 className="mt-1 text-[25px] font-semibold tracking-tight text-[#172636]">
-            Welcome back, Ali 
+            Welcome back, {userName}
           </h1>
 
           <p className="mt-1 text-[11px] text-[#8b969c]">
@@ -87,10 +103,7 @@ export default function StudentDashboard() {
           {/* Streak */}
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#edf8f8]">
-              <Flame
-                size={18}
-                className="text-[#00999d]"
-              />
+              <Flame size={18} className="text-[#00999d]" />
             </div>
 
             <div>
@@ -112,10 +125,7 @@ export default function StudentDashboard() {
           {/* Tasks */}
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#edf8f8]">
-              <CalendarDays
-                size={18}
-                className="text-[#00999d]"
-              />
+              <CalendarDays size={18} className="text-[#00999d]" />
             </div>
 
             <div>
@@ -151,7 +161,7 @@ export default function StudentDashboard() {
             </h2>
 
             <div className="mt-6 flex items-center gap-7">
-              {/* Ring */}
+              {/* Progress Ring */}
               <div className="relative h-[150px] w-[150px] shrink-0">
                 <svg
                   viewBox="0 0 120 120"
@@ -237,10 +247,7 @@ export default function StudentDashboard() {
 
             <div className="mt-5 flex h-[70px] items-center justify-center rounded-lg bg-[#e8f6f6]">
               <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-[5px] border-[#008f94]">
-                <Target
-                  size={28}
-                  className="text-[#008f94]"
-                />
+                <Target size={28} className="text-[#008f94]" />
               </div>
             </div>
 
@@ -278,7 +285,7 @@ export default function StudentDashboard() {
             </h2>
 
             <div className="relative mt-5">
-              <div className="absolute left-[8px] top-3 bottom-3 w-px bg-[#a8dada]" />
+              <div className="absolute bottom-3 left-[8px] top-3 w-px bg-[#a8dada]" />
 
               <div className="space-y-4">
                 <Milestone
@@ -356,6 +363,10 @@ export default function StudentDashboard() {
   );
 }
 
+/* -------------------------------- */
+/* Stat Component */
+/* -------------------------------- */
+
 function Stat({
   icon,
   label,
@@ -380,6 +391,7 @@ function Stat({
 
         <p className="mt-0.5 text-[11px] font-semibold text-[#172636]">
           {value}
+
           <span className="ml-1 text-[7px] font-normal text-[#9aa5aa]">
             {detail}
           </span>
@@ -388,6 +400,10 @@ function Stat({
     </div>
   );
 }
+
+/* -------------------------------- */
+/* Milestone Component */
+/* -------------------------------- */
 
 function Milestone({
   date,
@@ -423,19 +439,23 @@ function Milestone({
   );
 }
 
+/* -------------------------------- */
+/* Course Card Component */
+/* -------------------------------- */
+
 function CourseCard({
   course,
 }: {
   course: (typeof courses)[number];
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-[#e5e9ea] bg-white shadow-sm hover:shadow-lg transition">
+    <div className="overflow-hidden rounded-xl border border-[#e5e9ea] bg-white shadow-sm transition hover:shadow-lg">
       {/* Course Image */}
       <div
         className="relative h-[105px] bg-cover"
         style={{
           backgroundImage: `url(${course.image})`,
-          backgroundPosition: "center 15%", // 👈 Image thori upar hogi
+          backgroundPosition: "center 15%",
         }}
       >
         <div className="absolute inset-0 bg-black/10" />

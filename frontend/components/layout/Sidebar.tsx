@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+
 import {
   LayoutDashboard,
   BookOpen,
@@ -68,12 +70,31 @@ interface SidebarProps {
 export default function Sidebar({
   active = "Dashboard",
 }: SidebarProps) {
-  return (
-    <aside className="fixed inset-y-0 left-0 z-50 flex w-[220px] flex-col bg-[#172636] text-white">
+  const [userName, setUserName] = useState("Student");
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+
+        if (user?.name) {
+          setUserName(user.name);
+        }
+      } catch (error) {
+        console.error("Unable to read user data:", error);
+      }
+    }
+  }, []);
+
+  // Get first letter of user's name
+  const userInitial = userName.charAt(0).toUpperCase();
+
+  return (
+    <aside className="flex h-screen w-[250px] shrink-0 flex-col bg-[#172636] text-white">
       {/* Logo */}
       <div className="flex h-[90px] items-center gap-3 px-7">
-
         {/* Exact Logo */}
         <div className="flex h-11 w-11 items-center justify-center">
           <img
@@ -129,13 +150,15 @@ export default function Sidebar({
           href="/profile"
           className="flex items-center gap-3 rounded-lg transition hover:bg-white/5"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#08a7aa] text-sm font-semibold">
-            A
+          {/* User Initial */}
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#08a7aa] text-sm font-semibold">
+            {userInitial}
           </div>
 
+          {/* User Name */}
           <div className="min-w-0">
-            <p className="text-[13px] font-medium">
-              Ali
+            <p className="truncate text-[13px] font-medium">
+              {userName}
             </p>
 
             <p className="mt-1 text-[10px] text-white/50">
@@ -148,7 +171,6 @@ export default function Sidebar({
           </span>
         </Link>
       </div>
-
     </aside>
   );
 }

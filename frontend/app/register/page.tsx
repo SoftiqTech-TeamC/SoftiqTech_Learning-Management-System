@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (
@@ -23,7 +24,10 @@ export default function RegisterPage() {
   ) => {
     e.preventDefault();
 
+    console.log("REGISTER BUTTON CLICKED");
+
     setError("");
+    setSuccess("");
 
     // Check password confirmation
     if (password !== confirmPassword) {
@@ -34,8 +38,12 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+      console.log("API URL:", apiUrl);
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
+        `${apiUrl}/auth/register`,
         {
           method: "POST",
           headers: {
@@ -43,14 +51,18 @@ export default function RegisterPage() {
           },
           body: JSON.stringify({
             name: fullName,
-            email,
-            password,
+            email: email,
+            password: password,
             role: "student",
           }),
         }
       );
 
+      console.log("Response status:", response.status);
+
       const data = await response.json();
+
+      console.log("Backend response:", data);
 
       if (!response.ok) {
         if (response.status === 409) {
@@ -72,10 +84,19 @@ export default function RegisterPage() {
       localStorage.setItem("token", data.token);
 
       // Save user
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem(
+        "user",
+        JSON.stringify(data.user)
+      );
+
+      // Show success message
+      setSuccess("Registration successful! Redirecting...");
 
       // Go to dashboard
-      router.push("/student");
+      setTimeout(() => {
+        router.push("/student");
+      }, 1000);
+
     } catch (error) {
       console.error("Registration error:", error);
 
@@ -114,7 +135,6 @@ export default function RegisterPage() {
               href="/"
               className="flex items-center gap-3"
             >
-
               <div className="flex h-12 w-12 items-center justify-center">
                 <svg
                   width="48"
@@ -149,7 +169,6 @@ export default function RegisterPage() {
               <span className="text-[30px] font-bold tracking-tight text-slate-800">
                 Nexus Learning
               </span>
-
             </Link>
           </div>
 
@@ -170,6 +189,14 @@ export default function RegisterPage() {
           {error && (
             <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
+            </div>
+          )}
+
+          {/* SUCCESS */}
+
+          {success && (
+            <div className="mb-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600">
+              {success}
             </div>
           )}
 
@@ -211,7 +238,9 @@ export default function RegisterPage() {
                   type="text"
                   placeholder="Enter your full name"
                   value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
+                  onChange={(e) =>
+                    setFullName(e.target.value)
+                  }
                   required
                   className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-4 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />
@@ -257,7 +286,9 @@ export default function RegisterPage() {
                   type="email"
                   placeholder="Enter your email address"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) =>
+                    setEmail(e.target.value)
+                  }
                   required
                   className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-4 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />
@@ -283,10 +314,14 @@ export default function RegisterPage() {
 
                 <input
                   id="password"
-                  type={showPassword ? "text" : "password"}
+                  type={
+                    showPassword ? "text" : "password"
+                  }
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
                   required
                   className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-11 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />

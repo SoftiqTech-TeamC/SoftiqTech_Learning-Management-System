@@ -8,334 +8,193 @@ import {
   Bell,
   Search,
   ChevronDown,
-  LayoutGrid,
-  List,
 } from "lucide-react";
 
 export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-[#F7F9FC] flex">
+      
       {/* Sidebar */}
-      <Sidebar />
+      <aside className="fixed left-0 top-0 z-30 h-screen w-[220px] bg-[#172636]">
+        <Sidebar />
+      </aside>
 
       {/* Main Content */}
-      <div className="ml-[220px] flex-1">
+      <div className="ml-[260px] flex-1 min-w-0">
+        
         {/* Header */}
-        <div className="sticky top-0 z-20 flex items-center justify-between border-b bg-white px-6 py-2">
+        <div className="sticky top-0 z-20 flex h-[80px] items-center justify-between border-b border-gray-200 bg-white px-6">
           <div>
-            <h1 className="text-[43px] font-bold">
-               Courses
+            <h1 className="text-[36px] font-bold text-[#172636]">
+              Courses
             </h1>
 
-            <div className="mt-2 h-[4px] w-12 rounded bg-[#08a7aa]" />
+            <div className="mt-1 h-[4px] w-12 rounded bg-[#08a7aa]" />
           </div>
 
           <div className="flex items-center gap-6">
-           <Bell className="text-gray-600" />
-           <ChevronDown className="text-gray-600" />
+            <Bell className="text-gray-600" size={21} />
+            <ChevronDown className="text-gray-600" size={20} />
           </div>
         </div>
 
-        {/* Search */}
-        <div className="mt-3 flex items-center gap-2 px-5">
+        {/* Search / Filters */}
+        <div className="mt-4 flex items-center gap-3 px-6">
+          
           <div className="relative w-[300px]">
             <Search
               size={18}
-              className="absolute left-4 top-3 text-gray-400"
+              className="absolute left-4 top-2.5 text-gray-400"
             />
 
             <input
               placeholder="Search courses..."
-              className="h-8 w-full rounded-xl border border-gray-200 pl-11 outline-none transition focus:border-[#08a7aa] focus:ring-2 focus:ring-[#08a7aa]/20"
+              className="h-9 w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 text-sm outline-none transition focus:border-[#08a7aa] focus:ring-2 focus:ring-[#08a7aa]/20"
             />
           </div>
 
-          <select className="h-8 w-[180px] rounded-xl border border-gray-200 px-4 outline-none focus:border-[#08a7aa]">
+          <select className="h-9 w-[180px] rounded-xl border border-gray-200 bg-white px-4 text-sm outline-none focus:border-[#08a7aa]">
             <option>All Categories</option>
           </select>
 
-          <select className="h-8 w-[170px] rounded-xl border border-gray-200 px-4 outline-none focus:border-[#08a7aa]">
+          <select className="h-9 w-[170px] rounded-xl border border-gray-200 bg-white px-4 text-sm outline-none focus:border-[#08a7aa]">
             <option>Sort by: Recent</option>
           </select>
-
-          
         </div>
 
         {/* Courses */}
-        <div className="mt-8 px-10">
-          <div className="grid grid-cols-4 gap-4">
+        <main className="px-6 pb-10 pt-8">
+          
+          <div className="grid grid-cols-4 gap-5">
 
             {/* Course 1 */}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-
-              <div className="relative h-[150px]">
-                <Image
-                  src="/courses/ai.jpg"
-                  alt="AI Course"
-                  fill
-                  className="object-cover"
-                />
-
- 
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-[18px] font-bold leading-6">
-                  AI & ML Fundamentals
-                </h3>
-
-                <p className="mt-2 text-sm text-gray-500">
-                  Dr. Ali
-                </p>
-
-                <Link
-                  href="/courses/ai-ml"
-                  className="block w-full mt-5 bg-[#0C8B90] text-white rounded-md py-2 text-center font-medium"
-                >
-                  Enroll
-                </Link>
-
-              </div>
-            </div>
+            <CourseCard
+              image="/courses/ai.jpg"
+              alt="AI Course"
+              title="AI & ML Fundamentals"
+              teacher="Dr. Ali"
+              href="/courses/ai-ml"
+            />
 
             {/* Course 2 */}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-
-              <div className="relative h-[150px]">
-                <Image
-                  src="/courses/business.jpg"
-                  alt="Business Strategy"
-                  fill
-                  className="object-cover"
-                />
-
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-[18px] font-bold">
-                  Business Strategy Essentials
-                </h3>
-
-                <p className="mt-2 text-sm text-gray-500">
-                  Taha
-                </p>
-
-
-                <Link
-                  href="/courses/business-strategy"
-                  className="block w-full mt-5 bg-[#0C8B90] text-white rounded-md py-2 text-center"
-                >
-                  Enroll
-                </Link>
-              </div>
-            </div>
+            <CourseCard
+              image="/courses/business.jpg"
+              alt="Business Strategy"
+              title="Business Strategy Essentials"
+              teacher="Taha"
+              href="/courses/business-strategy"
+            />
 
             {/* Course 3 */}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-
-              <div className="relative h-[150px]">
-                <Image
-                  src="/courses/ux-ui.jpg"
-                  alt="UX UI"
-                  fill
-                  className="object-cover"
-                />
-
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-[18px] font-bold">
-                  UX/UI Design Masterclass
-                </h3>
-
-                <p className="mt-2 text-sm text-gray-500">
-                  Danial
-                </p>
-
-              
-
-                <Link
-                  href="/courses/ux-ui"
-                  className="block w-full mt-5 bg-[#0C8B90] text-white rounded-md py-2 text-center"
-                >
-                 Enroll
-                </Link>
-
-              </div>
-            </div>
+            <CourseCard
+              image="/courses/ux-ui.jpg"
+              alt="UX UI"
+              title="UX/UI Design Masterclass"
+              teacher="Danial"
+              href="/courses/ux-ui"
+            />
 
             {/* Course 4 */}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+            <CourseCard
+              image="/courses/cybersecurity.jpg"
+              alt="Cybersecurity"
+              title="Cybersecurity Essentials"
+              teacher="Sara Javaid"
+              href="/courses/cybersecurity"
+            />
 
-              <div className="relative h-[150px]">
-                <Image
-                  src="/courses/cybersecurity.jpg"
-                  alt="Cybersecurity"
-                  fill
-                  className="object-cover"
-                />
-
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-[18px] font-bold">
-                  Cybersecurity Essentials
-                </h3>
-
-                <p className="mt-2 text-sm text-gray-500">
-                  Sara Javaid
-                </p>
-
-          
-
-                <Link
-                  href="/courses/cybersecurity"
-                  className="block w-full mt-5 bg-[#0C8B90] text-white rounded-md py-2 text-center"
-                >
-                  Enroll
-                </Link>
-                  
-                
-              </div>
-            </div>
-
-                        {/* Course 5 */}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-
-              <div className="relative h-[150px]">
-                <Image
-                  src="/courses/python.jpg"
-                  alt="Data Science with Python"
-                  fill
-                  className="object-cover"
-                />
-
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-[18px] font-bold leading-6">
-                  Data Science with Python
-                </h3>
-
-                <p className="mt-2 text-sm text-gray-500">
-                  Dr. Saba
-                </p>
-
-
-
-                <Link
-                  href="/courses/data-science"
-                  className="block w-full mt-5 bg-[#0B8B90] text-white rounded-md py-2 text-center"
-                >
-                  Enroll
-                </Link>
-
-              </div>
-            </div>
+            {/* Course 5 */}
+            <CourseCard
+              image="/courses/python.jpg"
+              alt="Data Science with Python"
+              title="Data Science with Python"
+              teacher="Dr. Saba"
+              href="/courses/data-science"
+            />
 
             {/* Course 6 */}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-
-              <div className="relative h-[150px]">
-                <Image
-                  src="/courses/photography.jpg"
-                  alt="Photography"
-                  fill
-                  className="object-cover"
-                />
-
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-[18px] font-bold">
-                  Digital Photography Pro
-                </h3>
-
-                <p className="mt-2 text-sm text-gray-500">
-                  Eman Ahad
-                </p>
-
-
-
-                <Link
-                  href="/courses/digital-photography"
-                  className="block w-full mt-5 bg-[#0B8B90] text-white rounded-md py-2 text-center"
-                >
-                  Enroll
-                </Link>
-
-              </div>
-            </div>
+            <CourseCard
+              image="/courses/photography.jpg"
+              alt="Photography"
+              title="Digital Photography Pro"
+              teacher="Eman Ahad"
+              href="/courses/digital-photography"
+            />
 
             {/* Course 7 */}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-
-              <div className="relative h-[150px]">
-                <Image
-                  src="/courses/astrophysics.jpg"
-                  alt="Astrophysics"
-                  fill
-                  className="object-cover"
-                />
-
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-[18px] font-bold">
-                  Introduction to Astrophysics
-                </h3>
-
-                <p className="mt-2 text-sm text-gray-500">
-                  Dr. Nahal
-                </p>
-
-
-
-                <Link
-                  href="/courses/astrophysics"
-                  className="block w-full mt-5 bg-[#0B8B90] text-white rounded-md py-2 text-center"
-                >
-                 Enroll
-                </Link>
-
-              </div>
-            </div>
+            <CourseCard
+              image="/courses/astrophysics.jpg"
+              alt="Astrophysics"
+              title="Introduction to Astrophysics"
+              teacher="Dr. Nahal"
+              href="/courses/astrophysics"
+            />
 
             {/* Course 8 */}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-
-              <div className="relative h-[150px]">
-                <Image
-                  src="/courses/sustainability.jpg"
-                  alt="Sustainability"
-                  fill
-                  className="object-cover"
-                />
-
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-[18px] font-bold">
-                  Sustainability in Business
-                </h3>
-
-                <p className="mt-2 text-sm text-gray-500">
-                  Laiba Aslam
-                </p>
-
-
-                <Link
-                  href="/courses/sustainability"
-                  className="block w-full mt-5 bg-[#0B8B90] text-white rounded-md py-2 text-center"
-                >
-                  Enroll
-                </Link>
-
-              </div>
-            </div>
+            <CourseCard
+              image="/courses/sustainability.jpg"
+              alt="Sustainability"
+              title="Sustainability in Business"
+              teacher="Laiba Aslam"
+              href="/courses/sustainability"
+            />
 
           </div>
-        </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+
+/* =========================
+   Course Card
+========================= */
+
+function CourseCard({
+  image,
+  alt,
+  title,
+  teacher,
+  href,
+}: {
+  image: string;
+  alt: string;
+  title: string;
+  teacher: string;
+  href: string;
+}) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+
+      {/* Image */}
+      <div className="relative h-[150px]">
+        <Image
+          src={image}
+          alt={alt}
+          fill
+          className="object-cover"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+
+        <h3 className="text-[17px] font-bold leading-6 text-[#172636]">
+          {title}
+        </h3>
+
+        <p className="mt-2 text-sm text-gray-500">
+          {teacher}
+        </p>
+
+        <Link
+          href={href}
+          className="mt-5 block w-full rounded-md bg-[#0C8B90] py-2 text-center font-medium text-white transition hover:bg-[#08787c]"
+        >
+          Enroll
+        </Link>
+
       </div>
     </div>
   );
