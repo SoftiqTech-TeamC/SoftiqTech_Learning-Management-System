@@ -9,6 +9,7 @@ import {
   CalendarDays,
   ClipboardList,
   GraduationCap,
+  BarChart3,
   Mail,
   FolderOpen,
   Users,
@@ -34,12 +35,17 @@ const navigation = [
   {
     label: "Assignments",
     icon: ClipboardList,
-    href: "#",
+    href: "/assignments",
+  },
+  {
+    label: "Quizzes",
+    icon: GraduationCap,
+    href: "/quizzes",
   },
   {
     label: "Grades",
-    icon: GraduationCap,
-    href: "#",
+    icon: BarChart3,
+    href: "/grades",
   },
   {
     label: "Messages",
