@@ -7,13 +7,12 @@ import {
   LayoutDashboard,
   BookOpen,
   CalendarDays,
-  ClipboardList,
-  GraduationCap,
-  BarChart3,
-  Mail,
-  FolderOpen,
-  Users,
+  Brain,
+  ChartNoAxesColumnIncreasing,
+  Award,
+  Bell,
   Settings,
+  LogOut,
 } from "lucide-react";
 
 const navigation = [
@@ -23,49 +22,44 @@ const navigation = [
     href: "/student",
   },
   {
-    label: "Courses",
+    label: "My Courses",
     icon: BookOpen,
     href: "/courses",
   },
   {
     label: "Calendar",
     icon: CalendarDays,
-    href: "#",
-  },
-  {
-    label: "Assignments",
-    icon: ClipboardList,
-    href: "/assignments",
+    href: "/student/calendar",
   },
   {
     label: "Quizzes",
-    icon: GraduationCap,
-    href: "/quizzes",
+    icon: Brain,
+    href: "/student/quizzes",
   },
   {
-    label: "Grades",
-    icon: BarChart3,
-    href: "/grades",
+    label: "My Progress",
+    icon: ChartNoAxesColumnIncreasing,
+    href: "/student/progress",
   },
   {
-    label: "Messages",
-    icon: Mail,
-    href: "#",
+    label: "Certificates",
+    icon: Award,
+    href: "/student/certificates",
   },
   {
-    label: "Resources",
-    icon: FolderOpen,
-    href: "#",
-  },
-  {
-    label: "Community",
-    icon: Users,
-    href: "#",
+    label: "Notifications",
+    icon: Bell,
+    href: "/notifications",
   },
   {
     label: "Settings",
     icon: Settings,
     href: "/settings",
+  },
+  {
+    label: "Logout",
+    icon: LogOut,
+    href: "#",
   },
 ];
 
@@ -94,23 +88,20 @@ export default function Sidebar({
     }
   }, []);
 
-  // Get first letter of user's name
   const userInitial = userName.charAt(0).toUpperCase();
 
   return (
-    <aside className="flex h-screen w-[250px] shrink-0 flex-col bg-[#172636] text-white">
+    <aside className="flex min-h-screen w-[240px] flex-col bg-[#172636] text-white">
       {/* Logo */}
-      <div className="flex h-[90px] items-center gap-3 px-7">
-        {/* Exact Logo */}
-        <div className="flex h-11 w-11 items-center justify-center">
+      <div className="flex items-center gap-3 px-5 py-6">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center">
           <img
             src="/logo.png"
             alt="Nexus Learning Logo"
-            className="h-40 w-40 object-contain"
+            className="h-10 w-10 object-contain"
           />
         </div>
 
-        {/* Brand Name */}
         <div>
           <h1 className="text-[16px] font-semibold leading-none">
             Nexus
