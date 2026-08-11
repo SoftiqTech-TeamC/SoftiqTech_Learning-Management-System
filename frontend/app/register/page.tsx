@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Get role from URL:
+  // /register?role=student
+  // /register?role=faculty
+  const selectedRole = searchParams.get("role") || "student";
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -25,11 +31,11 @@ export default function RegisterPage() {
     e.preventDefault();
 
     console.log("REGISTER BUTTON CLICKED");
+    console.log("SELECTED ROLE:", selectedRole);
 
     setError("");
     setSuccess("");
 
-    // Check password confirmation
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -41,28 +47,27 @@ export default function RegisterPage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
       console.log("API URL:", apiUrl);
+      console.log("REGISTERING AS:", selectedRole);
 
-      const response = await fetch(
-        `${apiUrl}/auth/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: fullName,
-            email: email,
-            password: password,
-            role: "student",
-          }),
-        }
-      );
+      const response = await fetch(`${apiUrl}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: fullName,
+          email: email,
+          password: password,
+          role: selectedRole === "faculty" ? "faculty" : "student",
+        }),
+      });
 
       console.log("Response status:", response.status);
 
       const data = await response.json();
 
       console.log("Backend response:", data);
+      console.log("REGISTERED USER ROLE:", data.user?.role);
 
       if (!response.ok) {
         if (response.status === 409) {
@@ -89,12 +94,15 @@ export default function RegisterPage() {
         JSON.stringify(data.user)
       );
 
-      // Show success message
       setSuccess("Registration successful! Redirecting...");
 
-      // Go to dashboard
+      // Redirect based on actual backend role
       setTimeout(() => {
-        router.push("/student");
+        if (data.user?.role === "faculty") {
+          router.push("/teacher");
+        } else {
+          router.push("/student");
+        }
       }, 1000);
 
     } catch (error) {
@@ -112,7 +120,6 @@ export default function RegisterPage() {
     <main className="grid min-h-screen lg:grid-cols-2">
 
       {/* LEFT SIDE - IMAGE */}
-
       <section className="relative hidden min-h-screen lg:block">
         <img
           src="/register-learning.jpg"
@@ -124,12 +131,10 @@ export default function RegisterPage() {
       </section>
 
       {/* RIGHT SIDE - REGISTER FORM */}
-
       <section className="flex min-h-screen items-center justify-center bg-white px-6 py-10 sm:px-10">
         <div className="w-full max-w-[420px]">
 
           {/* LOGO */}
-
           <div className="mb-7 flex justify-center">
             <Link
               href="/"
@@ -173,7 +178,6 @@ export default function RegisterPage() {
           </div>
 
           {/* HEADING */}
-
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">
               Create Your Account
@@ -182,10 +186,15 @@ export default function RegisterPage() {
             <p className="mt-2 text-xs text-slate-500">
               Join Nexus Learning and start your learning journey today.
             </p>
+
+            {/* Shows selected role */}
+            <p className="mt-2 text-xs font-semibold text-[#087F87]">
+              Registering as:{" "}
+              {selectedRole === "faculty" ? "Faculty" : "Student"}
+            </p>
           </div>
 
           {/* ERROR */}
-
           {error && (
             <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
@@ -193,7 +202,6 @@ export default function RegisterPage() {
           )}
 
           {/* SUCCESS */}
-
           {success && (
             <div className="mb-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600">
               {success}
@@ -201,14 +209,12 @@ export default function RegisterPage() {
           )}
 
           {/* REGISTER FORM */}
-
           <form
             onSubmit={handleRegister}
             className="space-y-4"
           >
 
             {/* FULL NAME */}
-
             <div>
               <label
                 htmlFor="fullName"
@@ -217,39 +223,18 @@ export default function RegisterPage() {
                 Full Name
               </label>
 
-              <div className="relative">
-
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 21C4.5 16.5 7.5 14 12 14C16.5 14 19.5 16.5 20 21" />
-                  </svg>
-                </span>
-
-                <input
-                  id="fullName"
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={fullName}
-                  onChange={(e) =>
-                    setFullName(e.target.value)
-                  }
-                  required
-                  className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-4 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
-                />
-
-              </div>
+              <input
+                id="fullName"
+                type="text"
+                placeholder="Enter your full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="h-11 w-full rounded-md border border-slate-300 bg-white px-4 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
+              />
             </div>
 
             {/* EMAIL */}
-
             <div>
               <label
                 htmlFor="email"
@@ -258,46 +243,18 @@ export default function RegisterPage() {
                 Email Address
               </label>
 
-              <div className="relative">
-
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <rect
-                      x="3"
-                      y="5"
-                      width="18"
-                      height="14"
-                      rx="2"
-                    />
-
-                    <path d="M3 7L12 13L21 7" />
-                  </svg>
-                </span>
-
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={email}
-                  onChange={(e) =>
-                    setEmail(e.target.value)
-                  }
-                  required
-                  className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-4 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
-                />
-
-              </div>
+              <input
+                id="email"
+                type="email"
+                placeholder="Enter your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-11 w-full rounded-md border border-slate-300 bg-white px-4 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
+              />
             </div>
 
             {/* PASSWORD */}
-
             <div>
               <label
                 htmlFor="password"
@@ -307,41 +264,27 @@ export default function RegisterPage() {
               </label>
 
               <div className="relative">
-
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  🔒
-                </span>
-
                 <input
                   id="password"
-                  type={
-                    showPassword ? "text" : "password"
-                  }
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) =>
-                    setPassword(e.target.value)
-                  }
+                  onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-11 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
+                  className="h-11 w-full rounded-md border border-slate-300 bg-white px-4 pr-11 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPassword(!showPassword)
-                  }
+                  onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  aria-label="Toggle password visibility"
                 >
                   {showPassword ? "◉" : "◌"}
                 </button>
-
               </div>
             </div>
 
             {/* CONFIRM PASSWORD */}
-
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -351,17 +294,10 @@ export default function RegisterPage() {
               </label>
 
               <div className="relative">
-
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  🔒
-                </span>
-
                 <input
                   id="confirmPassword"
                   type={
-                    showConfirmPassword
-                      ? "text"
-                      : "password"
+                    showConfirmPassword ? "text" : "password"
                   }
                   placeholder="Confirm your password"
                   value={confirmPassword}
@@ -369,27 +305,22 @@ export default function RegisterPage() {
                     setConfirmPassword(e.target.value)
                   }
                   required
-                  className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-11 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
+                  className="h-11 w-full rounded-md border border-slate-300 bg-white px-4 pr-11 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />
 
                 <button
                   type="button"
                   onClick={() =>
-                    setShowConfirmPassword(
-                      !showConfirmPassword
-                    )
+                    setShowConfirmPassword(!showConfirmPassword)
                   }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  aria-label="Toggle confirm password visibility"
                 >
                   {showConfirmPassword ? "◉" : "◌"}
                 </button>
-
               </div>
             </div>
 
             {/* CREATE ACCOUNT BUTTON */}
-
             <button
               type="submit"
               disabled={loading}
@@ -403,10 +334,8 @@ export default function RegisterPage() {
           </form>
 
           {/* LOGIN LINK */}
-
           <p className="mt-5 text-center text-xs text-slate-600">
             Already have an account?{" "}
-
             <Link
               href="/login"
               className="font-semibold text-[#087F87] hover:underline"
@@ -418,5 +347,13 @@ export default function RegisterPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
   );
 }

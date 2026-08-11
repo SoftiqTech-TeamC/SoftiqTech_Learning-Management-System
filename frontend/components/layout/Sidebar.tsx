@@ -34,7 +34,7 @@ const navigation = [
   {
     label: "Quizzes",
     icon: Brain,
-    href: "/student/quizzes",
+    href: "/quizzes",
   },
   {
     label: "My Progress",

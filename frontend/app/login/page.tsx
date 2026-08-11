@@ -38,6 +38,8 @@ export default function LoginPage() {
 
       const data = await response.json();
 
+      console.log("LOGIN USER:", data.user);
+
       if (!response.ok) {
         if (response.status === 401) {
           setError("Invalid email or password.");
@@ -56,10 +58,15 @@ export default function LoginPage() {
       // Save logged-in user
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Go to dashboard
-      router.push("/student");
+      // Redirect based on user role
+      if (data.user?.role === "faculty") {
+        router.push("/teacher");
+      } else {
+        router.push("/student");
+      }
     } catch (error) {
       console.error("Login error:", error);
+
       setError(
         "Unable to connect to the server. Make sure the backend is running."
       );
@@ -71,7 +78,6 @@ export default function LoginPage() {
   return (
     <main className="grid min-h-screen lg:grid-cols-2">
       {/* LEFT SIDE - IMAGE */}
-
       <section className="relative hidden min-h-screen lg:block">
         <img
           src="/login-learning.jpg"
@@ -83,17 +89,11 @@ export default function LoginPage() {
       </section>
 
       {/* RIGHT SIDE - LOGIN FORM */}
-
       <section className="flex min-h-screen items-center justify-center bg-white px-6 py-12 sm:px-10 lg:px-16">
         <div className="w-full max-w-[480px]">
-
           {/* Logo */}
-
           <div className="mb-10">
-            <Link
-              href="/"
-              className="flex items-center gap-3"
-            >
+            <Link href="/" className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center">
                 <svg
                   width="48"
@@ -129,7 +129,6 @@ export default function LoginPage() {
           </div>
 
           {/* Heading */}
-
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
               Welcome back
@@ -141,7 +140,6 @@ export default function LoginPage() {
           </div>
 
           {/* Error */}
-
           {error && (
             <div className="mb-5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
@@ -149,14 +147,8 @@ export default function LoginPage() {
           )}
 
           {/* Form */}
-
-          <form
-            onSubmit={handleLogin}
-            className="space-y-6"
-          >
-
+          <form onSubmit={handleLogin} className="space-y-6">
             {/* Email */}
-
             <div>
               <label
                 htmlFor="email"
@@ -183,7 +175,6 @@ export default function LoginPage() {
             </div>
 
             {/* Password */}
-
             <div>
               <label
                 htmlFor="password"
@@ -218,7 +209,6 @@ export default function LoginPage() {
             </div>
 
             {/* Remember + Forgot */}
-
             <div className="flex items-center justify-between">
               <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
                 <input
@@ -238,7 +228,6 @@ export default function LoginPage() {
             </div>
 
             {/* Login Button */}
-
             <button
               type="submit"
               disabled={loading}
@@ -249,10 +238,8 @@ export default function LoginPage() {
           </form>
 
           {/* Register */}
-
           <p className="mt-8 text-center text-sm text-slate-600">
             Don't have an account?{" "}
-
             <Link
               href="/register"
               className="font-semibold text-[#087F87] hover:underline"
@@ -260,7 +247,6 @@ export default function LoginPage() {
               Register Now
             </Link>
           </p>
-
         </div>
       </section>
     </main>
