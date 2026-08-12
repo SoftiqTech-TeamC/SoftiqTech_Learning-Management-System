@@ -84,7 +84,7 @@ export default function StudentDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#fbfcfc]">
+    <div className="ml-[260px] min-h-screen bg-[#fbfcfc]">
       {/* ===================================================== */}
       {/* HEADER */}
       {/* ===================================================== */}
@@ -184,9 +184,7 @@ export default function StudentDashboard() {
         {/* ===================================================== */}
 
         <div className="grid grid-cols-12 gap-5">
-          {/* ================================================= */}
           {/* DAILY PROGRESS */}
-          {/* ================================================= */}
 
           <div className="col-span-4 rounded-xl border border-[#e7ebed] bg-white p-6">
             <h2 className="text-[13px] font-semibold text-[#172636]">
@@ -239,7 +237,6 @@ export default function StudentDashboard() {
 
               {/* Stats */}
               <div className="flex-1 space-y-5">
-                {/* Study Time */}
                 <Link
                   href="/student/progress/study-time"
                   className="block rounded-lg transition hover:bg-[#f7fbfb]"
@@ -252,7 +249,6 @@ export default function StudentDashboard() {
                   />
                 </Link>
 
-                {/* Lessons */}
                 <Link
                   href="/student/progress/lessons"
                   className="block rounded-lg transition hover:bg-[#f7fbfb]"
@@ -265,7 +261,6 @@ export default function StudentDashboard() {
                   />
                 </Link>
 
-                {/* Quizzes */}
                 <Link
                   href="/student/progress/quizzes"
                   className="block rounded-lg transition hover:bg-[#f7fbfb]"
@@ -280,7 +275,6 @@ export default function StudentDashboard() {
               </div>
             </div>
 
-            {/* Full Progress */}
             <Link
               href="/student/progress"
               className="mt-5 flex items-center gap-2 text-[9px] font-semibold text-[#00999d] transition hover:text-[#007b80]"
@@ -290,9 +284,7 @@ export default function StudentDashboard() {
             </Link>
           </div>
 
-          {/* ================================================= */}
           {/* FOCUS OF THE DAY */}
-          {/* ================================================= */}
 
           <div className="col-span-4 rounded-xl border border-[#e7ebed] bg-white p-6">
             <div className="flex items-start justify-between">
@@ -303,7 +295,6 @@ export default function StudentDashboard() {
               <div className="h-8 w-5 bg-[#00999d] [clip-path:polygon(0_0,100%_0,100%_100%,50%_75%,0_100%)]" />
             </div>
 
-            {/* Lesson Image/Area */}
             <Link
               href="/student/lesson/data-structures"
               className="block rounded-lg transition hover:opacity-90"
@@ -319,7 +310,6 @@ export default function StudentDashboard() {
               CONTINUE LESSON
             </p>
 
-            {/* Lesson Title */}
             <Link
               href="/student/lesson/data-structures"
               className="block"
@@ -333,12 +323,10 @@ export default function StudentDashboard() {
               CS-201 · Foundations of Computer Science
             </p>
 
-            {/* Lesson Progress */}
             <div className="mt-4 h-[4px] rounded-full bg-[#edf0f1]">
               <div className="h-full w-[40%] rounded-full bg-[#00999d]" />
             </div>
 
-            {/* Actions */}
             <div className="mt-4 flex items-center justify-between">
               <Link
                 href="/student/lesson/data-structures"
@@ -356,9 +344,7 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* ================================================= */}
           {/* UPCOMING MILESTONES */}
-          {/* ================================================= */}
 
           <div className="col-span-4 rounded-xl border border-[#e7ebed] bg-white p-6">
             <h2 className="text-[13px] font-semibold text-[#172636]">
@@ -366,7 +352,6 @@ export default function StudentDashboard() {
             </h2>
 
             <div className="relative mt-5">
-              {/* Timeline */}
               <div className="absolute bottom-3 left-[8px] top-3 w-px bg-[#a8dada]" />
 
               <div className="space-y-4">
@@ -404,7 +389,6 @@ export default function StudentDashboard() {
               </div>
             </div>
 
-            {/* All Milestones */}
             <Link
               href="/student/milestones"
               className="mt-5 flex items-center gap-2 text-[9px] font-semibold text-[#00999d] transition hover:text-[#007b80]"
@@ -426,7 +410,6 @@ export default function StudentDashboard() {
             </h2>
 
             <div className="flex items-center gap-3">
-              {/* All Courses */}
               <Link
                 href="/courses"
                 className="text-[9px] text-[#7d898f] transition hover:text-[#00999d]"
@@ -434,7 +417,6 @@ export default function StudentDashboard() {
                 View All Courses
               </Link>
 
-              {/* Previous */}
               <button
                 type="button"
                 className="rounded-full p-1 text-[#9aa5aa] transition hover:bg-[#f1f6f6] hover:text-[#00999d]"
@@ -443,7 +425,6 @@ export default function StudentDashboard() {
                 <ChevronLeft size={14} />
               </button>
 
-              {/* Next */}
               <button
                 type="button"
                 className="rounded-full p-1 text-[#9aa5aa] transition hover:bg-[#f1f6f6] hover:text-[#00999d]"
@@ -454,7 +435,6 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* Course Cards */}
           <div className="grid grid-cols-5 gap-4">
             {courses.map((course) => (
               <CourseCard
@@ -529,12 +509,10 @@ function Milestone({
       href={href}
       className="relative flex items-center gap-4 rounded-lg p-1 transition hover:bg-[#f7fbfb]"
     >
-      {/* Icon */}
       <div className="relative z-10 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-[#a8dada] bg-[#effafa] text-[#00999d]">
         {icon}
       </div>
 
-      {/* Content */}
       <div>
         <p className="text-[8px] text-[#8b969c]">
           {date}
@@ -566,7 +544,6 @@ function CourseCard({
       href={`/courses/${course.slug}`}
       className="block overflow-hidden rounded-xl border border-[#e5e9ea] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
     >
-      {/* Course Image */}
       <div
         className="relative h-[105px] bg-cover"
         style={{
@@ -577,7 +554,6 @@ function CourseCard({
         <div className="absolute inset-0 bg-black/10" />
       </div>
 
-      {/* Card Content */}
       <div className="p-3">
         <h3 className="truncate text-[10px] font-semibold text-[#172636]">
           {course.title}
@@ -587,7 +563,6 @@ function CourseCard({
           {course.teacher}
         </p>
 
-        {/* Progress */}
         <div className="mt-4 flex items-center gap-2">
           <div className="h-[4px] flex-1 rounded-full bg-[#e8edef]">
             <div
