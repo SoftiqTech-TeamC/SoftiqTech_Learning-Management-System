@@ -2,32 +2,98 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      console.log("LOGIN USER:", data.user);
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setError("Invalid email or password.");
+        } else if (response.status === 400) {
+          setError("Please enter your email and password.");
+        } else {
+          setError(data.message || "Login failed. Please try again.");
+        }
+
+        return;
+      }
+
+      // Save token
+      localStorage.setItem("token", data.token);
+
+      // Save logged-in user
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Redirect based on user role
+      if (data.user?.role === "faculty") {
+        router.push("/teacher");
+      } else {
+        router.push("/student");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+
+      setError(
+        "Unable to connect to the server. Make sure the backend is running."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-white lg:grid lg:grid-cols-2">
-      {/* Left Side - Image */}
+    <main className="grid min-h-screen lg:grid-cols-2">
+      {/* LEFT SIDE - IMAGE */}
       <section className="relative hidden min-h-screen lg:block">
         <img
           src="/login-learning.jpg"
-          alt="Learning workspace"
-          className="absolute inset-0 h-full w-full object-cover"
+          alt="Learning"
+          className="h-full w-full object-cover"
         />
 
         <div className="absolute inset-0 bg-black/5" />
       </section>
 
-      {/* Right Side - Login Form */}
+      {/* RIGHT SIDE - LOGIN FORM */}
       <section className="flex min-h-screen items-center justify-center bg-white px-6 py-12 sm:px-10 lg:px-16">
         <div className="w-full max-w-[480px]">
           {/* Logo */}
           <div className="mb-10">
-            <Link
-              href="/"
-              className="flex items-center gap-3"
-            >
+            <Link href="/" className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center">
                 <svg
                   width="48"
@@ -41,11 +107,13 @@ export default function LoginPage() {
                     stroke="#087F87"
                     strokeWidth="3"
                   />
+
                   <path
                     d="M20 17L29 11L40 17V36L29 42L20 35V17Z"
                     stroke="#087F87"
                     strokeWidth="3"
                   />
+
                   <path
                     d="M20 17L29 22L40 17"
                     stroke="#087F87"
@@ -71,8 +139,15 @@ export default function LoginPage() {
             </p>
           </div>
 
+          {/* Error */}
+          {error && (
+            <div className="mb-5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
           {/* Form */}
-          <form className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6">
             {/* Email */}
             <div>
               <label
@@ -91,6 +166,9 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                   className="h-12 w-full rounded-md border border-slate-300 bg-white pl-11 pr-4 text-sm text-slate-900 outline-none transition focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />
               </div>
@@ -114,6 +192,9 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                   className="h-12 w-full rounded-md border border-slate-300 bg-white pl-11 pr-12 text-sm text-slate-900 outline-none transition focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/20"
                 />
 
@@ -134,6 +215,7 @@ export default function LoginPage() {
                   type="checkbox"
                   className="h-4 w-4 rounded border-slate-300 accent-[#087F87]"
                 />
+
                 Remember me
               </label>
 
@@ -148,9 +230,10 @@ export default function LoginPage() {
             {/* Login Button */}
             <button
               type="submit"
-              className="h-12 w-full rounded-md bg-[#087F87] text-base font-semibold text-white transition hover:bg-[#066B72]"
+              disabled={loading}
+              className="h-12 w-full rounded-md bg-[#087F87] text-base font-semibold text-white transition hover:bg-[#066B72] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Sign in
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
 

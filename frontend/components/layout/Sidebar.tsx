@@ -1,16 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+
 import {
   LayoutDashboard,
   BookOpen,
   CalendarDays,
-  ClipboardList,
-  GraduationCap,
-  Mail,
-  FolderOpen,
-  Users,
+  Brain,
+  ChartNoAxesColumnIncreasing,
+  Award,
+  Bell,
   Settings,
+  LogOut,
 } from "lucide-react";
 
 const navigation = [
@@ -22,54 +24,82 @@ const navigation = [
   {
     label: "My Courses",
     icon: BookOpen,
-    href: "#",
+    href: "/courses",
   },
   {
     label: "Calendar",
     icon: CalendarDays,
-    href: "#",
+    href: "/student/calendar",
   },
   {
-    label: "Assignments",
-    icon: ClipboardList,
-    href: "#",
+    label: "Quizzes",
+    icon: Brain,
+    href: "/quizzes",
   },
   {
-    label: "Grades",
-    icon: GraduationCap,
-    href: "#",
+    label: "My Progress",
+    icon: ChartNoAxesColumnIncreasing,
+    href: "/student/progress",
   },
   {
-    label: "Messages",
-    icon: Mail,
-    href: "#",
+    label: "Certificates",
+    icon: Award,
+    href: "/student/certificates",
   },
   {
-    label: "Resources",
-    icon: FolderOpen,
-    href: "#",
-  },
-  {
-    label: "Community",
-    icon: Users,
-    href: "#",
+    label: "Notifications",
+    icon: Bell,
+    href: "/notifications",
   },
   {
     label: "Settings",
     icon: Settings,
     href: "/settings",
   },
+  {
+    label: "Logout",
+    icon: LogOut,
+    href: "#",
+  },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  active?: string;
+}
+
+export default function Sidebar({
+  active = "Dashboard",
+}: SidebarProps) {
+  const [userName, setUserName] = useState("Student");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+
+        if (user?.name) {
+          setUserName(user.name);
+        }
+      } catch (error) {
+        console.error("Unable to read user data:", error);
+      }
+    }
+  }, []);
+
+  const userInitial = userName.charAt(0).toUpperCase();
+
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 flex w-[220px] flex-col bg-[#172636] text-white">
+    <aside className="fixed left-0 top-0 z-50 flex h-screen w-[240px] flex-col bg-[#172636] text-white">
       {/* Logo */}
-      <div className="flex h-[90px] items-center gap-3 px-7">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-[#08a7aa]">
-          <div className="text-xl font-bold text-[#08a7aa]">
-            N
-          </div>
+      <div className="flex items-center gap-3 px-5 py-6">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+          <img
+            src="/logo.png"
+            alt="Nexus Learning Logo"
+            className="h-10 w-10 object-contain"
+          />
         </div>
 
         <div>
@@ -84,28 +114,24 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 pt-5">
+      <nav className="flex-1 overflow-y-auto px-3 pt-5">
         <div className="space-y-2">
-          {navigation.map((item, index) => {
+          {navigation.map((item) => {
             const Icon = item.icon;
-            const active = index === 0;
 
             return (
               <Link
                 key={item.label}
                 href={item.href}
                 className={`flex h-[44px] items-center gap-4 rounded-lg px-4 text-[13px] transition ${
-                  active
-                    ? "bg-[#075f69] text-white"
+                  active === item.label
+                    ? "bg-[#08a7aa] text-white shadow-sm"
                     : "text-white/65 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <Icon
                   size={18}
                   strokeWidth={1.7}
-                  className={
-                    active ? "text-[#08c4c4]" : ""
-                  }
                 />
 
                 <span>{item.label}</span>
@@ -119,15 +145,17 @@ export default function Sidebar() {
       <div className="border-t border-white/10 p-5">
         <Link
           href="/profile"
-          className="flex items-center gap-3 rounded-lg transition hover:bg-white/5"
+          className="flex items-center gap-3 rounded-lg p-1 transition hover:bg-white/5"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#08a7aa] text-sm font-semibold">
-            A
+          {/* User Initial */}
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#08a7aa] text-sm font-semibold">
+            {userInitial}
           </div>
 
+          {/* User Name */}
           <div className="min-w-0">
-            <p className="text-[13px] font-medium">
-              Ali
+            <p className="truncate text-[13px] font-medium">
+              {userName}
             </p>
 
             <p className="mt-1 text-[10px] text-white/50">
@@ -135,7 +163,7 @@ export default function Sidebar() {
             </p>
           </div>
 
-          <span className="ml-auto text-white/50">
+          <span className="ml-auto text-lg text-white/50">
             ›
           </span>
         </Link>

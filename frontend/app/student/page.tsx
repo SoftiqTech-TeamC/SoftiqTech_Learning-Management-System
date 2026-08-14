@@ -3,10 +3,10 @@ import StudentDashboard from "@/components/dashboard/StudentDashboard";
 
 export default function StudentPage() {
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen">
       <Sidebar />
 
-      <div className="ml-[220px]">
+      <div className="flex-1">
         <StudentDashboard />
       </div>
     </div>
