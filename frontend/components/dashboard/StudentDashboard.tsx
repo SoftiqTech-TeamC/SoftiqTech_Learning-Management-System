@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Bell,
   Flame,
@@ -14,49 +15,122 @@ import {
   ClipboardCheck,
   Code2,
   BarChart3,
-  Globe,
+  Atom,
   Sprout,
+  Sigma,
+  TrendingUp,
+  Loader2,
 } from "lucide-react";
+import { apiFetch } from "@/lib/api";
+import type { StudentDashboardData } from "@/lib/types";
 
-const courses = [
-  {
-    title: "Data Science 101",
-    teacher: "Prof Munawar",
-    progress: 65,
-    image: "/courses/data-science.jpg",
-    icon: BarChart3,
-  },
-  {
-    title: "Algorithms & Design",
-    teacher: "Prof. Ovais",
-    progress: 45,
-    image: "/courses/algorithms.jpg",
-    icon: Code2,
-  },
-  {
-    title: "Business Analytics",
-    teacher: "Prof. Arif",
-    progress: 70,
-    image: "/courses/business.jpg",
-    icon: BarChart3,
-  },
-  {
-    title: "Physics II",
-    teacher: "Prof. Haseeb",
-    progress: 30,
-    image: "/courses/physics.jpg",
-    icon: Globe,
-  },
-  {
-    title: "Environmental Science",
-    teacher: "Prof. ",
-    progress: 60,
-    image: "/courses/environment.jpg",
-    icon: Sprout,
-  },
-];
+const COURSE_ICONS: Record<string, typeof BookOpen> = {
+  "Data Science": BarChart3,
+  "Computer Science": Code2,
+  Physics: Atom,
+  "Environmental Science": Sprout,
+  Mathematics: Sigma,
+  Business: TrendingUp,
+};
+
+function courseIcon(category: string, size: number, className?: string) {
+  const Icon = COURSE_ICONS[category] ?? BookOpen;
+  return <Icon size={size} className={className} />;
+}
+
+function milestoneIcon(title: string) {
+  const t = title.toLowerCase();
+  if (t.includes("exam")) return ClipboardCheck;
+  if (t.includes("presentation")) return Users;
+  if (t.includes("lab") || t.includes("report")) return ClipboardCheck;
+  return Flag;
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
 
 export default function StudentDashboard() {
+  const [data, setData] = useState<StudentDashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [needsAuth, setNeedsAuth] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    apiFetch<StudentDashboardData>("/dashboard/student")
+      .then((res) => {
+        if (!cancelled) setData(res);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          const e = err as Error & { status?: number };
+          if (e.status === 401) {
+            setNeedsAuth(true);
+          } else {
+            setError(e.message);
+          }
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#fbfcfc]">
+        <Loader2 className="h-8 w-8 animate-spin text-[#00999d]" />
+      </div>
+    );
+  }
+
+  if (needsAuth) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#fbfcfc] px-8">
+        <p className="text-[15px] font-semibold text-[#172636]">
+          Sign in to view your dashboard
+        </p>
+        <p className="mt-2 text-[12px] text-[#8b969c]">
+          You need to be logged in as a student to see your progress.
+        </p>
+        <a
+          href="/login"
+          className="mt-5 rounded-md bg-[#008f94] px-6 py-2.5 text-[11px] font-semibold text-white"
+        >
+          Go to Login
+        </a>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#fbfcfc] px-8">
+        <p className="text-[15px] font-semibold text-[#172636]">
+          Unable to load your dashboard
+        </p>
+        <p className="mt-2 text-[12px] text-[#8b969c]">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-5 rounded-md bg-[#008f94] px-6 py-2.5 text-[11px] font-semibold text-white"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  const { student, overallProgress, stats, focus, milestones, courses } = data;
+
   return (
     <div className="min-h-screen bg-[#fbfcfc]">
       {/* Header */}
@@ -67,13 +141,11 @@ export default function StudentDashboard() {
               Learning Journey
             </span>
 
-            <span className="text-[#00999d]">
-              〰
-            </span>
+            <span className="text-[#00999d]">〰</span>
           </div>
 
           <h1 className="mt-1 text-[25px] font-semibold tracking-tight text-[#172636]">
-            Welcome back, Ali 
+            Welcome back, {student.name.split(" ")[0]}
           </h1>
 
           <p className="mt-1 text-[11px] text-[#8b969c]">
@@ -85,15 +157,12 @@ export default function StudentDashboard() {
           {/* Streak */}
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#edf8f8]">
-              <Flame
-                size={18}
-                className="text-[#00999d]"
-              />
+              <Flame size={18} className="text-[#00999d]" />
             </div>
 
             <div>
               <p className="text-[15px] font-semibold text-[#172636]">
-                7{" "}
+                {stats.streakDays}{" "}
                 <span className="text-[10px] font-normal text-[#6e7b82]">
                   Day Streak
                 </span>
@@ -110,15 +179,12 @@ export default function StudentDashboard() {
           {/* Tasks */}
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#edf8f8]">
-              <CalendarDays
-                size={18}
-                className="text-[#00999d]"
-              />
+              <CalendarDays size={18} className="text-[#00999d]" />
             </div>
 
             <div>
               <p className="text-[15px] font-semibold text-[#172636]">
-                12{" "}
+                {stats.tasksDue}{" "}
                 <span className="text-[10px] font-normal text-[#6e7b82]">
                   Tasks Due
                 </span>
@@ -130,11 +196,7 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          <Bell
-            size={22}
-            strokeWidth={1.5}
-            className="text-[#172636]"
-          />
+          <Bell size={22} strokeWidth={1.5} className="text-[#172636]" />
         </div>
       </header>
 
@@ -151,10 +213,7 @@ export default function StudentDashboard() {
             <div className="mt-6 flex items-center gap-7">
               {/* Ring */}
               <div className="relative h-[150px] w-[150px] shrink-0">
-                <svg
-                  viewBox="0 0 120 120"
-                  className="h-full w-full -rotate-90"
-                >
+                <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
                   <circle
                     cx="60"
                     cy="60"
@@ -173,13 +232,13 @@ export default function StudentDashboard() {
                     strokeWidth="7"
                     strokeLinecap="round"
                     strokeDasharray="301.6"
-                    strokeDashoffset="72.4"
+                    strokeDashoffset={301.6 - (301.6 * overallProgress) / 100}
                   />
                 </svg>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-[30px] font-semibold text-[#172636]">
-                    76%
+                    {overallProgress}%
                   </span>
 
                   <span className="text-[10px] text-[#7d898f]">
@@ -197,21 +256,21 @@ export default function StudentDashboard() {
                 <Stat
                   icon={<BookOpen size={16} />}
                   label="Study Time"
-                  value="2h 45m"
-                  detail="of 3h goal"
+                  value={stats.studyTimeToday}
+                  detail="today"
                 />
 
                 <Stat
                   icon={<CheckSquare size={16} />}
                   label="Lessons Done"
-                  value="5"
-                  detail="of 8"
+                  value={String(stats.lessonsDone)}
+                  detail={`of ${stats.totalLessons}`}
                 />
 
                 <Stat
                   icon={<Target size={16} />}
-                  label="Quizzes Score"
-                  value="88%"
+                  label="Avg Score"
+                  value={`${stats.avgScore}%`}
                   detail="avg."
                 />
               </div>
@@ -233,40 +292,50 @@ export default function StudentDashboard() {
               <div className="h-8 w-5 bg-[#00999d] [clip-path:polygon(0_0,100%_0,100%_100%,50%_75%,0_100%)]" />
             </div>
 
-            <div className="mt-5 flex h-[70px] items-center justify-center rounded-lg bg-[#e8f6f6]">
-              <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-[5px] border-[#008f94]">
-                <Target
-                  size={28}
-                  className="text-[#008f94]"
-                />
+            {focus ? (
+              <>
+                <div className="mt-5 flex h-[70px] items-center justify-center rounded-lg bg-[#e8f6f6]">
+                  <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-[5px] border-[#008f94]">
+                    <Target size={28} className="text-[#008f94]" />
+                  </div>
+                </div>
+
+                <p className="mt-4 text-[8px] font-semibold text-[#00999d]">
+                  CONTINUE LESSON
+                </p>
+
+                <h3 className="mt-1 text-[14px] font-semibold text-[#172636]">
+                  {focus.lessonTitle}
+                </h3>
+
+                <p className="mt-1 text-[9px] text-[#849097]">
+                  {focus.courseCode} · {focus.courseTitle}
+                </p>
+
+                <div className="mt-4 h-[4px] rounded-full bg-[#edf0f1]">
+                  <div
+                    className="h-full rounded-full bg-[#00999d]"
+                    style={{ width: `${focus.courseProgress}%` }}
+                  />
+                </div>
+
+                <div className="mt-4 flex items-center justify-between">
+                  <button className="rounded-md bg-[#008f94] px-6 py-2.5 text-[9px] font-semibold text-white">
+                    Resume Lesson
+                  </button>
+
+                  <span className="text-[9px] font-semibold text-[#00999d]">
+                    View Course
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="mt-5 flex h-[70px] items-center justify-center rounded-lg bg-[#e8f6f6]">
+                <p className="text-[10px] text-[#7d898f]">
+                  Enroll in a course to see your next lesson.
+                </p>
               </div>
-            </div>
-
-            <p className="mt-4 text-[8px] font-semibold text-[#00999d]">
-              CONTINUE LESSON
-            </p>
-
-            <h3 className="mt-1 text-[14px] font-semibold text-[#172636]">
-              Data Structures in Depth
-            </h3>
-
-            <p className="mt-1 text-[9px] text-[#849097]">
-              CS-201 · Foundations of Computer Science
-            </p>
-
-            <div className="mt-4 h-[4px] rounded-full bg-[#edf0f1]">
-              <div className="h-full w-[40%] rounded-full bg-[#00999d]" />
-            </div>
-
-            <div className="mt-4 flex items-center justify-between">
-              <button className="rounded-md bg-[#008f94] px-6 py-2.5 text-[9px] font-semibold text-white">
-                Resume Lesson
-              </button>
-
-              <span className="text-[9px] font-semibold text-[#00999d]">
-                View Course
-              </span>
-            </div>
+            )}
           </div>
 
           {/* Milestones */}
@@ -276,36 +345,27 @@ export default function StudentDashboard() {
             </h2>
 
             <div className="relative mt-5">
-              <div className="absolute left-[8px] top-3 bottom-3 w-px bg-[#a8dada]" />
+              <div className="absolute bottom-3 left-[8px] top-3 w-px bg-[#a8dada]" />
 
               <div className="space-y-4">
-                <Milestone
-                  date="May 24"
-                  title="Project Proposal"
-                  subtitle="Data Science 101"
-                  icon={<Flag size={12} />}
-                />
+                {milestones.length === 0 && (
+                  <p className="text-[10px] text-[#8b969c]">
+                    No upcoming milestones. You&apos;re all caught up!
+                  </p>
+                )}
 
-                <Milestone
-                  date="May 27"
-                  title="Midterm Exam"
-                  subtitle="Algorithms & Design"
-                  icon={<ClipboardCheck size={12} />}
-                />
-
-                <Milestone
-                  date="May 30"
-                  title="Group Presentation"
-                  subtitle="Business Analytics"
-                  icon={<Users size={12} />}
-                />
-
-                <Milestone
-                  date="Jun 2"
-                  title="Lab Report"
-                  subtitle="Physics I"
-                  icon={<ClipboardCheck size={12} />}
-                />
+                {milestones.map((milestone) => {
+                  const Icon = milestoneIcon(milestone.title);
+                  return (
+                    <Milestone
+                      key={milestone.id}
+                      date={formatDate(milestone.date)}
+                      title={milestone.title}
+                      subtitle={milestone.subtitle}
+                      icon={<Icon size={12} />}
+                    />
+                  );
+                })}
               </div>
             </div>
 
@@ -328,26 +388,25 @@ export default function StudentDashboard() {
                 View All Courses
               </span>
 
-              <ChevronLeft
-                size={14}
-                className="text-[#9aa5aa]"
-              />
+              <ChevronLeft size={14} className="text-[#9aa5aa]" />
 
-              <ChevronRight
-                size={14}
-                className="text-[#9aa5aa]"
-              />
+              <ChevronRight size={14} className="text-[#9aa5aa]" />
             </div>
           </div>
 
-          <div className="grid grid-cols-5 gap-4">
-            {courses.map((course) => (
-              <CourseCard
-                key={course.title}
-                course={course}
-              />
-            ))}
-          </div>
+          {courses.length === 0 ? (
+            <div className="rounded-xl border border-[#e7ebed] bg-white p-8 text-center">
+              <p className="text-[12px] text-[#8b969c]">
+                You haven&apos;t enrolled in any courses yet.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-5 gap-4">
+              {courses.map((course) => (
+                <CourseCard key={course.id} course={course} />
+              ))}
+            </div>
+          )}
         </section>
       </main>
     </div>
@@ -372,9 +431,7 @@ function Stat({
       </div>
 
       <div>
-        <p className="text-[8px] text-[#8b969c]">
-          {label}
-        </p>
+        <p className="text-[8px] text-[#8b969c]">{label}</p>
 
         <p className="mt-0.5 text-[11px] font-semibold text-[#172636]">
           {value}
@@ -405,42 +462,27 @@ function Milestone({
       </div>
 
       <div>
-        <p className="text-[8px] text-[#8b969c]">
-          {date}
-        </p>
+        <p className="text-[8px] text-[#8b969c]">{date}</p>
 
         <p className="mt-0.5 text-[9px] font-semibold text-[#172636]">
           {title}
         </p>
 
-        <p className="text-[7px] text-[#8b969c]">
-          {subtitle}
-        </p>
+        <p className="text-[7px] text-[#8b969c]">{subtitle}</p>
       </div>
     </div>
   );
 }
 
-function CourseCard({
-  course,
-}: {
-  course: (typeof courses)[number];
-}) {
-  const Icon = course.icon;
-
+function CourseCard({ course }: { course: StudentDashboardData["courses"][number] }) {
   return (
     <div className="overflow-hidden rounded-xl border border-[#e5e9ea] bg-white">
-      <div
-        className="relative h-[105px] bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${course.image})`,
-        }}
-      >
-        <div className="absolute inset-0 bg-black/15" />
-
-        <div className="absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#075f69]/90 text-white">
-          <Icon size={14} />
+      <div className="relative flex h-[105px] items-center justify-center bg-gradient-to-br from-[#075f69] to-[#00999d]">
+        <div className="absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white">
+          {courseIcon(course.category, 14)}
         </div>
+
+        {courseIcon(course.category, 28, "text-white/70")}
       </div>
 
       <div className="p-3">
@@ -449,16 +491,14 @@ function CourseCard({
         </h3>
 
         <p className="mt-1 truncate text-[8px] text-[#849097]">
-          {course.teacher}
+          {course.instructorName || course.category}
         </p>
 
         <div className="mt-4 flex items-center gap-2">
           <div className="h-[4px] flex-1 rounded-full bg-[#e8edef]">
             <div
               className="h-full rounded-full bg-[#00999d]"
-              style={{
-                width: `${course.progress}%`,
-              }}
+              style={{ width: `${course.progress}%` }}
             />
           </div>
 
