@@ -44,7 +44,7 @@ function RegisterForm() {
     setLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
       console.log("API URL:", apiUrl);
       console.log("REGISTERING AS:", selectedRole);
@@ -94,16 +94,12 @@ function RegisterForm() {
         JSON.stringify(data.user)
       );
 
-      setSuccess("Registration successful! Redirecting...");
+      setSuccess("Registration successful! Please login.");
 
-      // Redirect based on actual backend role
-      setTimeout(() => {
-        if (data.user?.role === "faculty") {
-          router.push("/teacher");
-        } else {
-          router.push("/student");
-        }
-      }, 1000);
+// Redirect to login page instead
+setTimeout(() => {
+  router.push("/login");
+}, 1000);
 
     } catch (error) {
       console.error("Registration error:", error);

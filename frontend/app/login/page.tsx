@@ -38,6 +38,12 @@ export default function LoginPage() {
 
       const data = await response.json();
 
+          // ✅ Handle 403 Forbidden - Role mismatch
+    if (response.status === 403) {
+      setError(data.message || "Invalid role for this account.");
+      return;
+    }
+
       console.log("LOGIN USER:", data.user);
 
       if (!response.ok) {

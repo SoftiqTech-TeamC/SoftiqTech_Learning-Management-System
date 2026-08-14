@@ -51,7 +51,7 @@ const register = async (req, res) => {
 // @route  POST /api/auth/login
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body; // ← Make sure role is here
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
@@ -60,6 +60,13 @@ const login = async (req, res) => {
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // ✅ Add role validation
+    if (role && user.role !== role) {
+      return res.status(403).json({ 
+        message: `This account is registered as ${user.role}, not ${role}` 
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -80,6 +87,7 @@ const login = async (req, res) => {
       },
     });
   } catch (err) {
+    console.error('Login error:', err); // ← Add this to see the error
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
