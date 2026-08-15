@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 
 import {
@@ -48,6 +49,7 @@ const activities = [
 
 const courses = [
   {
+    id: 1,
     name: "Computer Science 320",
     instructor: "Dr. Jawaid",
     students: 42,
@@ -55,6 +57,7 @@ const courses = [
     status: "Active",
   },
   {
+    id: 2,
     name: "Database Systems",
     instructor: "Maham",
     students: 38,
@@ -62,6 +65,7 @@ const courses = [
     status: "Active",
   },
   {
+    id: 3,
     name: "Research Methodology",
     instructor: "Eman",
     students: 36,
@@ -69,6 +73,7 @@ const courses = [
     status: "Active",
   },
   {
+    id: 4,
     name: "Mathematics 120",
     instructor: "Rubina",
     students: 40,
@@ -83,7 +88,7 @@ export default function AdminDashboard() {
       <AdminSidebar />
 
       <main className="ml-[240px]">
-        {/* Header */}
+        {/* HEADER */}
         <header className="border-b bg-white px-8 py-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
@@ -102,13 +107,21 @@ export default function AdminDashboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="relative flex h-11 w-11 items-center justify-center rounded-lg border bg-white text-slate-500 transition hover:bg-slate-50">
+              {/* NOTIFICATIONS */}
+              <Link
+                href="/admin/notifications"
+                className="relative flex h-11 w-11 items-center justify-center rounded-lg border bg-white text-slate-500 transition hover:bg-slate-50 hover:text-[#087f87]"
+              >
                 <Bell size={19} />
 
                 <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#08a7aa]" />
-              </button>
+              </Link>
 
-              <div className="flex items-center gap-3 rounded-xl border bg-white px-3 py-2">
+              {/* ADMIN PROFILE */}
+              <Link
+                href="/admin/settings"
+                className="flex items-center gap-3 rounded-xl border bg-white px-3 py-2 transition hover:bg-slate-50"
+              >
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#eaf7f7] text-sm font-bold text-[#087f87]">
                   A
                 </div>
@@ -122,13 +135,13 @@ export default function AdminDashboard() {
                     System Admin
                   </p>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </header>
 
         <div className="space-y-8 p-8">
-          {/* Welcome */}
+          {/* WELCOME */}
           <section className="rounded-2xl bg-[#172636] p-7 text-white">
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
               <div>
@@ -146,59 +159,68 @@ export default function AdminDashboard() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="rounded-xl border border-white/10 bg-white/5 px-5 py-4">
-                  <p className="text-xs text-white/50">
-                    System Status
-                  </p>
+              <Link
+                href="/admin/activity"
+                className="rounded-xl border border-white/10 bg-white/5 px-5 py-4 transition hover:bg-white/10"
+              >
+                <p className="text-xs text-white/50">
+                  System Status
+                </p>
 
-                  <div className="mt-2 flex items-center gap-2 text-sm font-semibold">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                    All Systems Operational
-                  </div>
+                <div className="mt-2 flex items-center gap-2 text-sm font-semibold">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                  All Systems Operational
                 </div>
-              </div>
+              </Link>
             </div>
           </section>
 
-          {/* Statistics */}
+          {/* STATISTICS */}
           <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              icon={Users}
-              title="Total Users"
-              value="2,486"
-              change="+12.5%"
-              positive
-            />
+            <Link href="/admin/users">
+              <StatCard
+                icon={Users}
+                title="Total Users"
+                value="2,486"
+                change="+12.5%"
+                positive
+              />
+            </Link>
 
-            <StatCard
-              icon={GraduationCap}
-              title="Students"
-              value="2,184"
-              change="+8.2%"
-              positive
-            />
+            <Link href="/admin/students">
+              <StatCard
+                icon={GraduationCap}
+                title="Students"
+                value="2,184"
+                change="+8.2%"
+                positive
+              />
+            </Link>
 
-            <StatCard
-              icon={BookOpen}
-              title="Active Courses"
-              value="86"
-              change="+5.4%"
-              positive
-            />
+            <Link href="/admin/courses">
+              <StatCard
+                icon={BookOpen}
+                title="Active Courses"
+                value="86"
+                change="+5.4%"
+                positive
+              />
+            </Link>
 
-            <StatCard
-              icon={Activity}
-              title="Platform Activity"
-              value="94.8%"
-              change="-1.2%"
-              positive={false}
-            />
+            <Link href="/admin/activity">
+              <StatCard
+                icon={Activity}
+                title="Platform Activity"
+                value="94.8%"
+                change="-1.2%"
+                positive={false}
+              />
+            </Link>
           </section>
 
-          {/* Main Grid */}
+          {/* MAIN GRID */}
           <section className="grid gap-6 xl:grid-cols-[1.7fr_1fr]">
-            {/* Courses */}
+            {/* ACTIVE COURSES */}
             <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
               <div className="flex items-center justify-between border-b p-6">
                 <div>
@@ -211,16 +233,20 @@ export default function AdminDashboard() {
                   </p>
                 </div>
 
-                <button className="flex items-center gap-1 text-xs font-semibold text-[#087f87]">
+                <Link
+                  href="/admin/courses"
+                  className="flex items-center gap-1 text-xs font-semibold text-[#087f87] transition hover:text-[#066b72]"
+                >
                   View All
                   <ArrowUpRight size={15} />
-                </button>
+                </Link>
               </div>
 
               <div className="divide-y">
                 {courses.map((course) => (
-                  <div
-                    key={course.name}
+                  <Link
+                    key={course.id}
+                    href={`/admin/courses/${course.id}`}
                     className="flex flex-col gap-4 p-5 transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex items-center gap-4">
@@ -260,12 +286,12 @@ export default function AdminDashboard() {
                         {course.status}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
 
-            {/* Recent Activity */}
+            {/* RECENT ACTIVITY */}
             <div className="rounded-2xl border bg-white shadow-sm">
               <div className="flex items-center justify-between border-b p-6">
                 <div>
@@ -278,10 +304,12 @@ export default function AdminDashboard() {
                   </p>
                 </div>
 
-                <MoreHorizontal
-                  size={19}
-                  className="text-slate-400"
-                />
+                <Link
+                  href="/admin/activity"
+                  className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-[#087f87]"
+                >
+                  <MoreHorizontal size={19} />
+                </Link>
               </div>
 
               <div className="divide-y">
@@ -289,9 +317,10 @@ export default function AdminDashboard() {
                   const Icon = activity.icon;
 
                   return (
-                    <div
+                    <Link
                       key={activity.title}
-                      className="flex gap-4 p-5"
+                      href="/admin/activity"
+                      className="flex gap-4 p-5 transition hover:bg-slate-50"
                     >
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eaf7f7] text-[#087f87]">
                         <Icon size={18} />
@@ -311,35 +340,41 @@ export default function AdminDashboard() {
                           {activity.time}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
             </div>
           </section>
 
-          {/* Bottom Cards */}
+          {/* BOTTOM CARDS */}
           <section className="grid gap-6 lg:grid-cols-3">
-            <BottomCard
-              icon={CircleCheck}
-              title="System Health"
-              value="Excellent"
-              description="All core services are operating normally."
-            />
+            <Link href="/admin/activity">
+              <BottomCard
+                icon={CircleCheck}
+                title="System Health"
+                value="Excellent"
+                description="All core services are operating normally."
+              />
+            </Link>
 
-            <BottomCard
-              icon={Users}
-              title="New Users"
-              value="128"
-              description="New registrations during the last 7 days."
-            />
+            <Link href="/admin/users">
+              <BottomCard
+                icon={Users}
+                title="New Users"
+                value="128"
+                description="New registrations during the last 7 days."
+              />
+            </Link>
 
-            <BottomCard
-              icon={ShieldCheck}
-              title="Security"
-              value="Protected"
-              description="No unusual activity detected."
-            />
+            <Link href="/admin/settings">
+              <BottomCard
+                icon={ShieldCheck}
+                title="Security"
+                value="Protected"
+                description="No unusual activity detected."
+              />
+            </Link>
           </section>
         </div>
       </main>
@@ -361,7 +396,7 @@ function StatCard({
   positive: boolean;
 }) {
   return (
-    <div className="rounded-2xl border bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
       <div className="flex items-start justify-between">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eaf7f7] text-[#087f87]">
           <Icon size={21} />
@@ -369,9 +404,7 @@ function StatCard({
 
         <span
           className={`flex items-center gap-1 text-xs font-semibold ${
-            positive
-              ? "text-emerald-600"
-              : "text-red-500"
+            positive ? "text-emerald-600" : "text-red-500"
           }`}
         >
           {positive ? (
@@ -407,7 +440,7 @@ function BottomCard({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border bg-white p-5 shadow-sm">
+    <div className="h-full rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eaf7f7] text-[#087f87]">
         <Icon size={20} />
       </div>
