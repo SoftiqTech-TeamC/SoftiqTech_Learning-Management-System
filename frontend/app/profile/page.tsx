@@ -3,10 +3,10 @@ import ProfilePage from "@/components/profile/ProfilePage";
 
 export default function Profile() {
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen">
       <Sidebar />
 
-      <main className="ml-[220px]">
+      <main className="flex-1">
         <ProfilePage />
       </main>
     </div>
