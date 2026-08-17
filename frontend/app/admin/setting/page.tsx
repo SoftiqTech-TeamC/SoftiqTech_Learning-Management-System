@@ -23,7 +23,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f9fc]">
-      <AdminSidebar active="Settings" />
+      <AdminSidebar />
 
       <main className="ml-[240px]">
         <header className="border-b bg-white px-8 py-6">
@@ -79,6 +79,7 @@ export default function AdminSettingsPage() {
                 </label>
 
                 <input
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full rounded-lg border px-4 py-3 text-sm outline-none focus:border-[#087f87]"
@@ -119,6 +120,7 @@ export default function AdminSettingsPage() {
 
           <div className="flex justify-end">
             <button
+              type="button"
               onClick={handleSave}
               className="flex items-center gap-2 rounded-lg bg-[#087f87] px-5 py-3 text-sm font-semibold text-white hover:bg-[#066b72]"
             >
@@ -159,7 +161,10 @@ function SettingItem({
         </div>
       </div>
 
-      <button className="rounded-lg border px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+      <button
+        type="button"
+        className="rounded-lg border px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+      >
         Manage
       </button>
     </div>

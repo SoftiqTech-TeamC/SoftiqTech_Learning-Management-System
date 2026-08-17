@@ -55,7 +55,7 @@ export default function AdminCoursesPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f9fc]">
-      <AdminSidebar active="Courses" />
+      <AdminSidebar />
 
       <main className="ml-[240px]">
         <header className="border-b bg-white px-8 py-6">
@@ -129,7 +129,10 @@ export default function AdminCoursesPage() {
 
                 <div className="mt-5">
                   <div className="mb-2 flex justify-between text-xs">
-                    <span className="text-slate-400">Course Progress</span>
+                    <span className="text-slate-400">
+                      Course Progress
+                    </span>
+
                     <span className="font-semibold text-slate-700">
                       {course.progress}%
                     </span>

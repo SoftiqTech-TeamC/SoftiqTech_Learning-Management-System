@@ -1,6 +1,8 @@
+
 "use client";
 
 import AdminSidebar from "@/components/layout/AdminSidebar";
+import type { ElementType } from "react";
 import {
   Search,
   Filter,
@@ -62,7 +64,7 @@ export default function AdminUsersPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f9fc]">
-      <AdminSidebar active="Users" />
+      <AdminSidebar />
 
       <main className="ml-[240px]">
         <header className="border-b bg-white px-8 py-6">
@@ -142,7 +144,9 @@ export default function AdminUsersPage() {
                     <th className="px-6 py-4">Role</th>
                     <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4">Joined</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
+                    <th className="px-6 py-4 text-right">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
 
@@ -213,7 +217,7 @@ function SummaryCard({
   title,
   value,
 }: {
-  icon: React.ElementType;
+  icon: ElementType;
   title: string;
   value: string;
 }) {
@@ -223,7 +227,9 @@ function SummaryCard({
         <Icon size={21} />
       </div>
 
-      <p className="mt-4 text-sm text-slate-500">{title}</p>
+      <p className="mt-4 text-sm text-slate-500">
+        {title}
+      </p>
 
       <h2 className="mt-1 text-3xl font-bold text-[#172636]">
         {value}
