@@ -6,6 +6,8 @@ const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const mongoose = require('mongoose');
 const notificationRoutes = require('./routes/notification.routes');
+const discussionRoutes = require('./routes/discussion.routes');
+
 
 
 const app = express();
@@ -24,6 +26,8 @@ app.get('/', (req, res) => res.send('LMS API running'));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/discussions', discussionRoutes);
+
 
 
 // basic 404 handler
