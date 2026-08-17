@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import {
   Mail,
   Phone,
@@ -12,13 +14,38 @@ import {
 } from "lucide-react";
 
 export default function ProfilePage() {
+  const [userName, setUserName] = useState("Student");
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+
+        if (user?.name) {
+          setUserName(user.name);
+        }
+
+        if (user?.email) {
+          setUserEmail(user.email);
+        }
+      } catch (error) {
+        console.error("Unable to read user data:", error);
+      }
+    }
+  }, []);
+
+  const userInitial = userName.charAt(0).toUpperCase();
+
   return (
-    <div className="min-h-screen bg-[#f8fafb]">
+    <div className="min-h-screen bg-[#fbfcfc]">
       {/* Header */}
-      <header className="border-b border-[#e8edef] bg-white px-8 py-6">
-        <p className="text-[11px] font-medium text-[#00999d]">
+      <header className="border-b border-[#edf0f1] bg-white px-8 py-6">
+        <span className="text-[11px] font-medium text-[#00999d]">
           My Account
-        </p>
+        </span>
 
         <h1 className="mt-1 text-2xl font-semibold text-[#172636]">
           My Profile
@@ -34,12 +61,14 @@ export default function ProfilePage() {
           {/* Profile Card */}
           <div className="col-span-4 rounded-xl border border-[#e5e9ea] bg-white p-7">
             <div className="flex flex-col items-center text-center">
+              {/* User Initial */}
               <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#c98d69] text-3xl font-semibold text-white">
-                A
+                {userInitial}
               </div>
 
+              {/* User Name */}
               <h2 className="mt-4 text-xl font-semibold text-[#172636]">
-                Ali
+                {userName}
               </h2>
 
               <p className="mt-1 text-sm text-[#00999d]">
@@ -58,24 +87,28 @@ export default function ProfilePage() {
 
             <div className="mt-7 border-t border-[#edf0f1] pt-6">
               <div className="space-y-4">
+                {/* Email */}
                 <InfoRow
                   icon={<Mail size={16} />}
                   label="Email"
-                  value="ali123@example.com"
+                  value={userEmail || "No email available"}
                 />
 
+                {/* Phone */}
                 <InfoRow
                   icon={<Phone size={16} />}
                   label="Phone"
                   value="+92 300 1234567"
                 />
 
+                {/* Location */}
                 <InfoRow
                   icon={<MapPin size={16} />}
                   label="Location"
                   value="Lahore, Pakistan"
                 />
 
+                {/* Joined */}
                 <InfoRow
                   icon={<CalendarDays size={16} />}
                   label="Joined"
@@ -174,7 +207,7 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#eaf7f7] text-[#00999d]">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#eaf7f7] text-[#00999d]">
         {icon}
       </div>
 
@@ -202,7 +235,7 @@ function StatCard({
 }) {
   return (
     <div className="rounded-xl border border-[#e5e9ea] bg-white p-5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eaf7f7] text-[#00999d]">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#eaf7f7] text-[#00999d]">
         {icon}
       </div>
 

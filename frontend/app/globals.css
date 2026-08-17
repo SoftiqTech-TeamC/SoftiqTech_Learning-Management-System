@@ -128,3 +128,8 @@
     @apply font-sans;
   }
 }
+
+@keyframes lm-fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lm-scale-in{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+.lm-fade-up{animation:lm-fade-up 0.5s ease-out both}
+.lm-scale-in{animation:lm-scale-in 0.35s ease-out both}
