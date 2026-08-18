@@ -7,6 +7,7 @@ const userRoutes = require('./routes/user.routes');
 const mongoose = require('mongoose');
 const notificationRoutes = require('./routes/notification.routes');
 const discussionRoutes = require('./routes/discussion.routes');
+const searchRoutes = require('./routes/search.routes');
 
 
 
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/discussions', discussionRoutes);
+app.use('/api/search', searchRoutes);
 
 
 
