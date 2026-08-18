@@ -13,15 +13,15 @@ import { useRef, useState } from "react";
 
 export default function FileUploadPage() {
   const inputRef = useRef<HTMLInputElement>(null);
+
   const [files, setFiles] = useState<File[]>([]);
 
   const handleFiles = (selectedFiles: FileList | null) => {
     if (!selectedFiles) return;
 
-    setFiles((current) => [
-      ...current,
-      ...Array.from(selectedFiles),
-    ]);
+    const newFiles = Array.from(selectedFiles);
+
+    setFiles((current) => [...current, ...newFiles]);
   };
 
   const removeFile = (index: number) => {
@@ -32,8 +32,21 @@ export default function FileUploadPage() {
 
   const getIcon = (type: string) => {
     if (type.startsWith("image/")) return Image;
+
     if (type.includes("pdf")) return FileText;
+
     return File;
+  };
+
+  const handleUpload = () => {
+    if (files.length === 0) {
+      alert("Please select at least one file.");
+      return;
+    }
+
+    alert("Files uploaded successfully!");
+
+    setFiles([]);
   };
 
   return (
@@ -41,6 +54,7 @@ export default function FileUploadPage() {
       <AdminSidebar />
 
       <main className="ml-[240px]">
+        {/* HEADER */}
         <header className="border-b bg-white px-8 py-6">
           <p className="text-xs font-semibold uppercase tracking-wider text-[#087f87]">
             Content Management
@@ -56,11 +70,9 @@ export default function FileUploadPage() {
         </header>
 
         <div className="mx-auto max-w-5xl space-y-6 p-8">
+          {/* UPLOAD AREA */}
           <section className="rounded-2xl border bg-white p-6 shadow-sm">
-            <div
-              onClick={() => inputRef.current?.click()}
-              className="cursor-pointer rounded-2xl border-2 border-dashed border-slate-300 px-6 py-16 text-center transition hover:border-[#087f87] hover:bg-[#f5fbfb]"
-            >
+            <div className="rounded-2xl border-2 border-dashed border-slate-300 px-6 py-16 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eaf7f7] text-[#087f87]">
                 <UploadCloud size={28} />
               </div>
@@ -70,26 +82,38 @@ export default function FileUploadPage() {
               </h2>
 
               <p className="mt-2 text-sm text-slate-500">
-                Click here to select files from your computer.
+                Click the button below to select files from your computer.
               </p>
 
-              <button
-                type="button"
-                className="mt-5 rounded-lg bg-[#087f87] px-5 py-2.5 text-sm font-semibold text-white"
+              {/* REAL CLICKABLE FILE INPUT */}
+              <label
+                htmlFor="file-upload"
+                className="mt-5 inline-flex cursor-pointer items-center justify-center rounded-lg bg-[#087f87] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#066b72]"
               >
                 Choose Files
-              </button>
+              </label>
 
               <input
+                id="file-upload"
                 ref={inputRef}
                 type="file"
                 multiple
                 className="hidden"
-                onChange={(e) => handleFiles(e.target.files)}
+                onChange={(e) => {
+                  handleFiles(e.target.files);
+
+                  // Allows selecting the same file again
+                  e.target.value = "";
+                }}
               />
+
+              <p className="mt-4 text-xs text-slate-400">
+                You can select multiple files.
+              </p>
             </div>
           </section>
 
+          {/* SELECTED FILES */}
           {files.length > 0 && (
             <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
               <div className="border-b p-6">
@@ -98,7 +122,7 @@ export default function FileUploadPage() {
                 </h2>
 
                 <p className="mt-1 text-xs text-slate-500">
-                  Review your files before uploading.
+                  {files.length} file(s) selected.
                 </p>
               </div>
 
@@ -142,9 +166,7 @@ export default function FileUploadPage() {
               <div className="flex justify-end border-t p-5">
                 <button
                   type="button"
-                  onClick={() =>
-                    alert("Files uploaded successfully!")
-                  }
+                  onClick={handleUpload}
                   className="flex items-center gap-2 rounded-lg bg-[#087f87] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#066b72]"
                 >
                   <CheckCircle2 size={17} />

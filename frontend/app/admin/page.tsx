@@ -1,6 +1,8 @@
+
 "use client";
 
 import Link from "next/link";
+import type { ElementType } from "react";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 
 import {
@@ -107,7 +109,6 @@ export default function AdminDashboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* NOTIFICATIONS */}
               <Link
                 href="/admin/notifications"
                 className="relative flex h-11 w-11 items-center justify-center rounded-lg border bg-white text-slate-500 transition hover:bg-slate-50 hover:text-[#087f87]"
@@ -117,7 +118,6 @@ export default function AdminDashboard() {
                 <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#08a7aa]" />
               </Link>
 
-              {/* ADMIN PROFILE */}
               <Link
                 href="/admin/settings"
                 className="flex items-center gap-3 rounded-xl border bg-white px-3 py-2 transition hover:bg-slate-50"
@@ -183,7 +183,7 @@ export default function AdminDashboard() {
                 title="Total Users"
                 value="2,486"
                 change="+12.5%"
-                positive
+                positive={true}
               />
             </Link>
 
@@ -193,7 +193,7 @@ export default function AdminDashboard() {
                 title="Students"
                 value="2,184"
                 change="+8.2%"
-                positive
+                positive={true}
               />
             </Link>
 
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
                 title="Active Courses"
                 value="86"
                 change="+5.4%"
-                positive
+                positive={true}
               />
             </Link>
 
@@ -389,7 +389,7 @@ function StatCard({
   change,
   positive,
 }: {
-  icon: React.ElementType;
+  icon: ElementType;
   title: string;
   value: string;
   change: string;
@@ -434,7 +434,7 @@ function BottomCard({
   value,
   description,
 }: {
-  icon: React.ElementType;
+  icon: ElementType;
   title: string;
   value: string;
   description: string;

@@ -42,7 +42,7 @@ const navigation = [
   {
     label: "Profile & Settings",
     icon: Settings,
-    href: "/admin/settings",
+    href: "/admin/setting",
   },
 ];
 
@@ -112,7 +112,7 @@ export default function AdminSidebar() {
       {/* Admin Profile */}
       <div className="border-t border-white/10 p-5">
         <Link
-          href="/admin/settings"
+          href="/admin/setting"
           className="flex items-center gap-3 rounded-lg p-1 transition hover:bg-white/5"
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#08a7aa]">
@@ -130,7 +130,10 @@ export default function AdminSidebar() {
           </div>
         </Link>
 
-        <button className="mt-4 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-xs text-white/60 transition hover:bg-white/5 hover:text-white">
+        <button
+          type="button"
+          className="mt-4 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-xs text-white/60 transition hover:bg-white/5 hover:text-white"
+        >
           <LogOut size={16} />
           Logout
         </button>

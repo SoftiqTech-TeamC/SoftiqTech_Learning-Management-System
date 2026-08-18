@@ -49,7 +49,7 @@ const activities = [
 export default function AdminActivityPage() {
   return (
     <div className="min-h-screen bg-[#f7f9fc]">
-      <AdminSidebar active="Activity" />
+      <AdminSidebar />
 
       <main className="ml-[240px]">
         <header className="border-b bg-white px-8 py-6">
@@ -92,7 +92,7 @@ export default function AdminActivityPage() {
               return (
                 <div
                   key={activity.title}
-                  className="flex gap-5 border-b p-6 last:border-b-0 hover:bg-slate-50"
+                  className="flex gap-5 border-b p-6 last:border-b-0 transition hover:bg-slate-50"
                 >
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf7f7] text-[#087f87]">
                     <Icon size={20} />

@@ -2,7 +2,6 @@ import Link from "next/link";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import {
   ArrowLeft,
-  BookOpen,
   Users,
   GraduationCap,
   TrendingUp,
@@ -55,14 +54,14 @@ export default async function CourseDetailsPage({
 
   return (
     <div className="min-h-screen bg-[#f7f9fc]">
-      <AdminSidebar active="Courses" />
+      <AdminSidebar />
 
       <main className="ml-[240px]">
         <header className="border-b bg-white px-8 py-6">
           <div className="flex items-center gap-4">
             <Link
               href="/admin/courses"
-              className="flex h-10 w-10 items-center justify-center rounded-lg border text-slate-500 hover:bg-slate-50"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border text-slate-500 transition hover:bg-slate-50"
             >
               <ArrowLeft size={18} />
             </Link>
@@ -83,7 +82,9 @@ export default async function CourseDetailsPage({
           <section className="rounded-2xl bg-[#172636] p-7 text-white">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-sm text-white/60">Course Instructor</p>
+                <p className="text-sm text-white/60">
+                  Course Instructor
+                </p>
 
                 <h2 className="mt-2 text-2xl font-bold">
                   {course.instructor}
@@ -95,7 +96,9 @@ export default async function CourseDetailsPage({
               </div>
 
               <div className="rounded-xl bg-white/10 px-6 py-4">
-                <p className="text-xs text-white/60">Overall Progress</p>
+                <p className="text-xs text-white/60">
+                  Overall Progress
+                </p>
 
                 <p className="mt-2 text-3xl font-bold">
                   {course.progress}%
@@ -187,7 +190,9 @@ function InfoCard({
     <div className="rounded-2xl border bg-white p-5 shadow-sm">
       <Icon size={21} className="text-[#087f87]" />
 
-      <p className="mt-4 text-sm text-slate-500">{title}</p>
+      <p className="mt-4 text-sm text-slate-500">
+        {title}
+      </p>
 
       <h3 className="mt-1 text-xl font-bold text-[#172636]">
         {value}

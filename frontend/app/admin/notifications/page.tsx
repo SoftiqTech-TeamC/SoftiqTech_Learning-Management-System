@@ -70,7 +70,7 @@ export default function AdminNotificationsPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f9fc]">
-      <AdminSidebar active="Notifications" />
+      <AdminSidebar />
 
       <main className="ml-[240px]">
         <header className="border-b bg-white px-8 py-6">

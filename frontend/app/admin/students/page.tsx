@@ -1,14 +1,14 @@
+
 "use client";
 
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import {
-  GraduationCap,
   Search,
   BookOpen,
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type ElementType } from "react";
 
 const students = [
   {
@@ -50,7 +50,7 @@ export default function StudentsPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f9fc]">
-      <AdminSidebar active="Students" />
+      <AdminSidebar />
 
       <main className="ml-[240px]">
         <header className="border-b bg-white px-8 py-6">
@@ -153,7 +153,10 @@ export default function StudentsPage() {
 
                     <div className="w-40">
                       <div className="mb-2 flex justify-between text-xs">
-                        <span className="text-slate-400">Progress</span>
+                        <span className="text-slate-400">
+                          Progress
+                        </span>
+
                         <span className="font-semibold text-slate-700">
                           {student.progress}%
                         </span>
@@ -184,7 +187,7 @@ function Stat({
   title,
   value,
 }: {
-  icon: React.ElementType;
+  icon: ElementType;
   title: string;
   value: string;
 }) {
@@ -192,7 +195,9 @@ function Stat({
     <div className="rounded-2xl border bg-white p-5 shadow-sm">
       <Icon size={22} className="text-[#087f87]" />
 
-      <p className="mt-4 text-sm text-slate-500">{title}</p>
+      <p className="mt-4 text-sm text-slate-500">
+        {title}
+      </p>
 
       <h2 className="mt-1 text-3xl font-bold text-[#172636]">
         {value}
