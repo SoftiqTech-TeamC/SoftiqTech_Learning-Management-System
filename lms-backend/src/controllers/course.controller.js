@@ -1,4 +1,5 @@
 const Course = require('../models/Course');
+const Enrollment = require('../models/Enrollment');
 
 // @route  POST /api/courses  (instructor only)
 const createCourse = async (req, res) => {
@@ -87,6 +88,42 @@ const updateCourse = async (req, res) => {
   }
 };
 
+const enrollCourse = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+
+    // Check if course exists
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Check if already enrolled
+    const existing = await Enrollment.findOne({
+      course: courseId,  // ← CHANGE: course (not courseId)
+      student: req.user.userId,  // ← CHANGE: student (not studentId)
+    });
+
+    if (existing) {
+      return res.status(400).json({ message: 'Already enrolled in this course' });
+    }
+
+    // Create enrollment
+    const enrollment = await Enrollment.create({
+      course: courseId,  // ← CHANGE: course (not courseId)
+      student: req.user.userId,  // ← CHANGE: student (not studentId)
+    });
+
+    res.status(201).json({
+      message: 'Enrolled successfully',
+      enrollment,
+    });
+  } catch (err) {
+    console.error('Enrollment error:', err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // @route  DELETE /api/courses/:id  (instructor only — must own the course)
 const deleteCourse = async (req, res) => {
   try {
@@ -115,4 +152,5 @@ module.exports = {
   getMyCourses,
   updateCourse,
   deleteCourse,
+  enrollCourse,
 };

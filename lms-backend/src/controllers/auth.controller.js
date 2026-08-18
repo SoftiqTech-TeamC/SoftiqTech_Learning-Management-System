@@ -18,7 +18,7 @@ const register = async (req, res) => {
 
     // Only allow role override if explicitly passed and valid,
     // otherwise defaults to 'student' from the schema.
-    const allowedRoles = ['student', 'instructor', 'admin'];
+    const allowedRoles = ['student', 'teacher', 'faculty', 'admin'];
     const finalRole = allowedRoles.includes(role) ? role : 'student';
 
     const salt = await bcrypt.genSalt(10);

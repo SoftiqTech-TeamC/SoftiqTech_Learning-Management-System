@@ -8,6 +8,8 @@ const courseRoutes = require('./routes/course.routes');
 const enrollmentRoutes = require('./routes/enrollment.routes');
 const quizRoutes = require('./routes/quiz.routes');
 const assignmentRoutes = require('./routes/assignment.routes');
+const submissionRoutes = require('./routes/submission.routes');
+const discussionRoutes = require('./routes/discussion.routes');
 const mongoose = require('mongoose');
 
 const app = express();
@@ -31,7 +33,8 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/assignments', assignmentRoutes);
-
+app.use('/api/discussions', discussionRoutes);
+app.use('/api', submissionRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
