@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Assignment = require('../models/Assignment');
 const Course = require('../models/Course');
 
-// Get all assignments
+// Get single assignment
 const getAssignments = async (req, res) => {
   try {
     const { courseId } = req.query;
@@ -10,20 +10,17 @@ const getAssignments = async (req, res) => {
     const assignments = await Assignment.find(filter)
       .populate('createdBy', 'name')
       .populate('courseId', 'title');
-    res.json(assignments);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Get single assignment
-const getAssignmentById = async (req, res) => {
-  try {
-    const assignment = await Assignment.findById(req.params.id)
-      .populate('createdBy', 'name')
-      .populate('courseId', 'title');
-    if (!assignment) return res.status(404).json({ message: 'Assignment not found' });
-    res.json(assignment);
+    
+    // Add submission count for each assignment
+    const Submission = require('../models/Submission');
+    const assignmentsWithCount = await Promise.all(assignments.map(async (assignment) => {
+      const submissionCount = await Submission.countDocuments({ assignmentId: assignment._id });
+      const assignmentObj = assignment.toJSON();
+      assignmentObj.submissionCount = submissionCount;
+      return assignmentObj;
+    }));
+    
+    res.json(assignmentsWithCount);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -195,6 +192,29 @@ const getMySubmissions = async (req, res) => {
         populate: { path: 'courseId', select: 'title' }
       });
     res.json(submissions);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Get single assignment by ID
+const getAssignmentById = async (req, res) => {
+  try {
+    const assignment = await Assignment.findById(req.params.id)
+      .populate('createdBy', 'name')
+      .populate('courseId', 'title');
+    
+    if (!assignment) {
+      return res.status(404).json({ message: 'Assignment not found' });
+    }
+    
+    // Add submission count
+    const Submission = require('../models/Submission');
+    const submissionCount = await Submission.countDocuments({ assignmentId: assignment._id });
+    const assignmentObj = assignment.toJSON();
+    assignmentObj.submissionCount = submissionCount;
+    
+    res.json(assignmentObj);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

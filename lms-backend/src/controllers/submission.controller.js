@@ -245,6 +245,29 @@ const deleteGrade = async (req, res) => {
   }
 };
 
+// Unsubmit Assignment (Student)
+const unsubmitAssignment = async (req, res) => {
+  try {
+    const submission = await Submission.findOne({
+      assignmentId: req.params.id,
+      studentId: req.user.userId,
+    });
+
+    if (!submission) {
+      return res.status(404).json({ message: 'No submission found to unsubmit' });
+    }
+
+    if (submission.isGraded) {
+      return res.status(400).json({ message: 'Cannot unsubmit a graded assignment' });
+    }
+
+    await submission.deleteOne();
+    res.json({ message: 'Submission unsubmitted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   submitAssignment,
   getMySubmissions,
@@ -257,4 +280,5 @@ module.exports = {
   gradeSubmission,
   updateGrade,
   deleteGrade,
+  unsubmitAssignment,
 };

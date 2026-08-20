@@ -3,16 +3,17 @@ const router = express.Router();
 const verifyToken = require('../middleware/auth.middleware');   
 const requireRole = require('../middleware/role.middleware');   
 const {
+
+  getCourseById,
   createCourse,
   getAllCourses,
-  getCourseById,
   getMyCourses,
   updateCourse,
   deleteCourse,
   enrollCourse,
 } = require('../controllers/course.controller');
 
-router.get('/my-courses', verifyToken, requireRole(['instructor']), getMyCourses);
+router.get('/my-courses', verifyToken, requireRole(['teacher', 'faculty', 'admin']), getMyCourses);
 router.get('/', verifyToken, getAllCourses);
 router.get('/:id', verifyToken, getCourseById);
 
