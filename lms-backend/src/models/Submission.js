@@ -12,6 +12,8 @@ const SubmissionSchema = new mongoose.Schema({
     required: true 
   },
   fileUrl: { type: String, default: '' },
+   fileOriginalName: { type: String, default: '' },
+  fileSize: { type: Number, default: 0 },
   textAnswer: { type: String, default: '' },
   marksObtained: { type: Number, default: 0 },
   feedback: { type: String, default: '' },
