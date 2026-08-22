@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Sidebar from "@/components/layout/Sidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   Plus,
@@ -20,11 +20,20 @@ type Question = {
   correctAnswer: number;
 };
 
+type Course = {
+  _id: string;
+  title: string;
+};
+
 export default function CreateQuizPage() {
   const [title, setTitle] = useState("");
   const [course, setCourse] = useState("");
   const [duration, setDuration] = useState("30");
   const [description, setDescription] = useState("");
+
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const [questions, setQuestions] = useState<Question[]>([
     {
@@ -34,6 +43,53 @@ export default function CreateQuizPage() {
       correctAnswer: 0,
     },
   ]);
+
+  /*
+   * Fetch courses from backend
+   */
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoadingCourses(true);
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          console.error("No authentication token found.");
+          return;
+        }
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/courses`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => null);
+
+          throw new Error(
+            data?.message || "Failed to fetch courses."
+          );
+        }
+
+        const data = await response.json();
+
+        setCourses(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Fetch courses error:", error);
+      } finally {
+        setLoadingCourses(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const addQuestion = () => {
     setQuestions((current) => [
@@ -103,7 +159,7 @@ export default function CreateQuizPage() {
     );
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim()) {
       alert("Enter a quiz title.");
       return;
@@ -114,17 +170,132 @@ export default function CreateQuizPage() {
       return;
     }
 
-    const quiz = {
-      title,
-      course,
-      duration,
-      description,
-      questions,
+    if (!duration || Number(duration) <= 0) {
+      alert("Enter a valid duration.");
+      return;
+    }
+
+    if (!description.trim()) {
+      alert("Enter a quiz description.");
+      return;
+    }
+
+    if (questions.length === 0) {
+      alert("Add at least one question.");
+      return;
+    }
+
+    /*
+     * Validate questions
+     */
+    for (let i = 0; i < questions.length; i++) {
+      const question = questions[i];
+
+      if (!question.question.trim()) {
+        alert(`Enter question ${i + 1}.`);
+        return;
+      }
+
+      if (question.options.some((option) => !option.trim())) {
+        alert(`Please fill all options for question ${i + 1}.`);
+        return;
+      }
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You are not logged in.");
+      return;
+    }
+
+    /*
+     * Backend expects:
+     *
+     * {
+     *   courseId,
+     *   title,
+     *   description,
+     *   duration,
+     *   totalMarks,
+     *   passingScore,
+     *   questions: [
+     *     {
+     *       questionText,
+     *       options,
+     *       correctAnswer,
+     *       marks
+     *     }
+     *   ]
+     * }
+     */
+
+    const formattedQuestions = questions.map((question) => ({
+      questionText: question.question.trim(),
+      options: question.options.map((option) =>
+        option.trim()
+      ),
+      correctAnswer:
+        question.options[question.correctAnswer].trim(),
+      marks: 1,
+    }));
+
+    const totalMarks = formattedQuestions.reduce(
+      (total, question) => total + question.marks,
+      0
+    );
+
+    const passingScore = Math.ceil(totalMarks * 0.6);
+
+    const quizData = {
+      courseId: course,
+      title: title.trim(),
+      description: description.trim(),
+      duration: Number(duration),
+      totalMarks,
+      passingScore,
+      questions: formattedQuestions,
     };
 
-    console.log("Quiz:", quiz);
+    try {
+      setSaving(true);
 
-    alert("Quiz saved successfully!");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/quizzes`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(quizData),
+        }
+      );
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message || "Failed to create quiz."
+        );
+      }
+
+      console.log("Quiz created:", data);
+
+      alert("Quiz created successfully!");
+
+      window.location.href = "/teacher/quizzes";
+    } catch (error) {
+      console.error("Create quiz error:", error);
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Unable to create quiz."
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -172,10 +343,11 @@ export default function CreateQuizPage() {
               <button
                 type="button"
                 onClick={handleSave}
-                className="flex items-center gap-2 rounded-lg bg-[#087f87] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#066b72]"
+                disabled={saving}
+                className="flex items-center gap-2 rounded-lg bg-[#087f87] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#066b72] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Save size={17} />
-                Save Quiz
+                {saving ? "Saving..." : "Save Quiz"}
               </button>
             </div>
           </div>
@@ -219,21 +391,20 @@ export default function CreateQuizPage() {
                 <select
                   value={course}
                   onChange={(e) => setCourse(e.target.value)}
-                  className="w-full rounded-lg border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#087f87]"
+                  disabled={loadingCourses}
+                  className="w-full rounded-lg border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#087f87] disabled:bg-slate-50"
                 >
-                  <option value="">Select Course</option>
-                  <option value="Computer Science 320">
-                    Computer Science 320
+                  <option value="">
+                    {loadingCourses
+                      ? "Loading courses..."
+                      : "Select Course"}
                   </option>
-                  <option value="Biology 201">
-                    Biology 201
-                  </option>
-                  <option value="Psychology 150">
-                    Psychology 150
-                  </option>
-                  <option value="Mathematics 120">
-                    Mathematics 120
-                  </option>
+
+                  {courses.map((item) => (
+                    <option key={item._id} value={item._id}>
+                      {item.title}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -271,7 +442,9 @@ export default function CreateQuizPage() {
 
                 <textarea
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e) =>
+                    setDescription(e.target.value)
+                  }
                   rows={4}
                   placeholder="Add instructions or information for students..."
                   className="w-full resize-none rounded-lg border px-4 py-3 text-sm outline-none transition focus:border-[#087f87] focus:ring-2 focus:ring-[#087f87]/10"
@@ -295,7 +468,9 @@ export default function CreateQuizPage() {
 
               <div className="rounded-full bg-[#eaf7f7] px-4 py-2 text-xs font-semibold text-[#087f87]">
                 {questions.length}{" "}
-                {questions.length === 1 ? "Question" : "Questions"}
+                {questions.length === 1
+                  ? "Question"
+                  : "Questions"}
               </div>
             </div>
 
@@ -325,7 +500,9 @@ export default function CreateQuizPage() {
                   {questions.length > 1 && (
                     <button
                       type="button"
-                      onClick={() => removeQuestion(question.id)}
+                      onClick={() =>
+                        removeQuestion(question.id)
+                      }
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-red-500 transition hover:bg-red-50"
                     >
                       <Trash2 size={15} />
@@ -343,7 +520,10 @@ export default function CreateQuizPage() {
                   <textarea
                     value={question.question}
                     onChange={(e) =>
-                      updateQuestion(question.id, e.target.value)
+                      updateQuestion(
+                        question.id,
+                        e.target.value
+                      )
                     }
                     rows={3}
                     placeholder="Write your question here..."
@@ -364,60 +544,65 @@ export default function CreateQuizPage() {
                   </div>
 
                   <div className="grid gap-3 md:grid-cols-2">
-                    {question.options.map((option, optionIndex) => {
-                      const isCorrect =
-                        question.correctAnswer === optionIndex;
+                    {question.options.map(
+                      (option, optionIndex) => {
+                        const isCorrect =
+                          question.correctAnswer ===
+                          optionIndex;
 
-                      return (
-                        <div
-                          key={optionIndex}
-                          className={`flex items-center gap-3 rounded-xl border p-3 transition ${
-                            isCorrect
-                              ? "border-[#087f87] bg-[#f0fbfb]"
-                              : "border-slate-200"
-                          }`}
-                        >
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setCorrectAnswer(
-                                question.id,
-                                optionIndex
-                              )
-                            }
-                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${
+                        return (
+                          <div
+                            key={optionIndex}
+                            className={`flex items-center gap-3 rounded-xl border p-3 transition ${
                               isCorrect
-                                ? "border-[#087f87] bg-[#087f87] text-white"
-                                : "border-slate-300 text-slate-500"
+                                ? "border-[#087f87] bg-[#f0fbfb]"
+                                : "border-slate-200"
                             }`}
                           >
-                            {String.fromCharCode(65 + optionIndex)}
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCorrectAnswer(
+                                  question.id,
+                                  optionIndex
+                                )
+                              }
+                              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${
+                                isCorrect
+                                  ? "border-[#087f87] bg-[#087f87] text-white"
+                                  : "border-slate-300 text-slate-500"
+                              }`}
+                            >
+                              {String.fromCharCode(
+                                65 + optionIndex
+                              )}
+                            </button>
 
-                          <input
-                            value={option}
-                            onChange={(e) =>
-                              updateOption(
-                                question.id,
-                                optionIndex,
-                                e.target.value
-                              )
-                            }
-                            placeholder={`Option ${String.fromCharCode(
-                              65 + optionIndex
-                            )}`}
-                            className="w-full bg-transparent text-sm outline-none"
-                          />
-
-                          {isCorrect && (
-                            <CheckCircle2
-                              size={18}
-                              className="shrink-0 text-[#087f87]"
+                            <input
+                              value={option}
+                              onChange={(e) =>
+                                updateOption(
+                                  question.id,
+                                  optionIndex,
+                                  e.target.value
+                                )
+                              }
+                              placeholder={`Option ${String.fromCharCode(
+                                65 + optionIndex
+                              )}`}
+                              className="w-full bg-transparent text-sm outline-none"
                             />
-                          )}
-                        </div>
-                      );
-                    })}
+
+                            {isCorrect && (
+                              <CheckCircle2
+                                size={18}
+                                className="shrink-0 text-[#087f87]"
+                              />
+                            )}
+                          </div>
+                        );
+                      }
+                    )}
                   </div>
                 </div>
               </div>
@@ -447,18 +632,20 @@ export default function CreateQuizPage() {
               <button
                 type="button"
                 onClick={handleSave}
-                className="rounded-lg border px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                disabled={saving}
+                className="rounded-lg border px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
               >
-                Save as Draft
+                {saving ? "Saving..." : "Save as Draft"}
               </button>
 
               <button
                 type="button"
                 onClick={handleSave}
-                className="flex items-center gap-2 rounded-lg bg-[#087f87] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#066b72]"
+                disabled={saving}
+                className="flex items-center gap-2 rounded-lg bg-[#087f87] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#066b72] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Save size={17} />
-                Save Quiz
+                {saving ? "Saving..." : "Save Quiz"}
               </button>
             </div>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Plus,
   Search,
@@ -13,106 +13,207 @@ import {
   Users,
   CalendarDays,
   ChevronRight,
-  Play,
   Video,
+  Loader2,
 } from "lucide-react";
 
 type AssignmentStatus = "Published" | "Draft" | "Closed";
 
-const assignments = [
-  {
-    id: 1,
-    title: "Data Structures Analysis",
-    course: "Computer Science 320",
-    dueDate: "Aug 18, 2026",
-    submissions: 32,
-    totalStudents: 42,
-    status: "Published" as AssignmentStatus,
-    videoTitle: "Introduction to Data Structures",
-    videoDuration: "12:45",
-  },
-  {
-    id: 2,
-    title: "Database Design Project",
-    course: "Computer Science 320",
-    dueDate: "Aug 21, 2026",
-    submissions: 18,
-    totalStudents: 42,
-    status: "Published" as AssignmentStatus,
-    videoTitle: "Database Design Guidelines",
-    videoDuration: "09:30",
-  },
-  {
-    id: 3,
-    title: "Research Methodology",
-    course: "Psychology 150",
-    dueDate: "Aug 24, 2026",
-    submissions: 0,
-    totalStudents: 36,
-    status: "Published" as AssignmentStatus,
-    videoTitle: "Research Methodology Overview",
-    videoDuration: "15:20",
-  },
-  {
-    id: 4,
-    title: "Midterm Preparation",
-    course: "Mathematics 120",
-    dueDate: "Sep 02, 2026",
-    submissions: 0,
-    totalStudents: 40,
-    status: "Draft" as AssignmentStatus,
-    videoTitle: "Midterm Preparation Guide",
-    videoDuration: "18:10",
-  },
-  {
-    id: 5,
-    title: "Final Lab Report",
-    course: "Biology 201",
-    dueDate: "Jul 28, 2026",
-    submissions: 38,
-    totalStudents: 38,
-    status: "Closed" as AssignmentStatus,
-    videoTitle: "Final Lab Instructions",
-    videoDuration: "11:05",
-  },
-];
+type Assignment = {
+  _id: string;
+  title: string;
+  description: string;
+  dueDate: string;
+  totalMarks: number;
+  isPublished?: boolean;
+  submissionCount?: number;
+  courseId?: {
+    _id: string;
+    title: string;
+  } | null;
+};
+
+type Course = {
+  _id: string;
+  title: string;
+};
 
 export default function AssignmentsPage() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const [selectedAssignment, setSelectedAssignment] = useState(
-    assignments[0]
-  );
+
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<Assignment | null>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const getToken = () => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("token");
+  };
+
+  const fetchAssignments = async () => {
+    const token = getToken();
+
+    if (!token) {
+      setError("Please log in to continue.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/assignments`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch assignments.");
+      }
+
+      const data = await response.json();
+
+      const assignmentData = Array.isArray(data) ? data : [];
+
+      setAssignments(assignmentData);
+
+      if (assignmentData.length > 0) {
+        setSelectedAssignment(assignmentData[0]);
+      }
+    } catch (err) {
+      console.error("❌ Fetch teacher assignments error:", err);
+      setError("Unable to load assignments.");
+    }
+  };
+
+  const fetchCourses = async () => {
+    const token = getToken();
+
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${API_URL}/courses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+
+      setCourses(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("❌ Fetch courses error:", err);
+    }
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+
+      await Promise.all([
+        fetchAssignments(),
+        fetchCourses(),
+      ]);
+
+      setLoading(false);
+    };
+
+    loadData();
+  }, []);
+
+  const getStatus = (
+    assignment: Assignment
+  ): AssignmentStatus => {
+    if (!assignment.isPublished) {
+      return "Draft";
+    }
+
+    const dueDate = new Date(
+      assignment.dueDate
+    ).getTime();
+
+    if (
+      !Number.isNaN(dueDate) &&
+      dueDate < Date.now()
+    ) {
+      return "Closed";
+    }
+
+    return "Published";
+  };
+
+  const getCourseTitle = (assignment: Assignment) => {
+    if (assignment.courseId?.title) {
+      return assignment.courseId.title;
+    }
+
+    const matchingCourse = courses.find(
+      (course) =>
+        course._id ===
+        assignment.courseId?._id
+    );
+
+    return matchingCourse?.title || "Course";
+  };
 
   const filteredAssignments = useMemo(() => {
     return assignments.filter((assignment) => {
+      const courseTitle = getCourseTitle(assignment);
+
       const matchesSearch =
-        assignment.title.toLowerCase().includes(search.toLowerCase()) ||
-        assignment.course.toLowerCase().includes(search.toLowerCase());
+        assignment.title
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        courseTitle
+          .toLowerCase()
+          .includes(search.toLowerCase());
 
       const matchesFilter =
-        filter === "All" || assignment.status === filter;
+        filter === "All" ||
+        getStatus(assignment) === filter;
 
       return matchesSearch && matchesFilter;
     });
-  }, [search, filter]);
+  }, [assignments, search, filter, courses]);
 
   const published = assignments.filter(
-    (item) => item.status === "Published"
+    (item) => getStatus(item) === "Published"
   ).length;
 
   const drafts = assignments.filter(
-    (item) => item.status === "Draft"
+    (item) => getStatus(item) === "Draft"
   ).length;
 
   const totalSubmissions = assignments.reduce(
-    (sum, item) => sum + item.submissions,
+    (sum, item) =>
+      sum + (item.submissionCount || 0),
     0
   );
 
+  function formatDate(date: string) {
+    const parsed = new Date(date);
+
+    if (Number.isNaN(parsed.getTime())) {
+      return date;
+    }
+
+    return parsed.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
   return (
     <div className="min-h-screen bg-[#f7f9fc]">
-      {/* HEADER */}
       <header className="border-b bg-white px-8 py-6">
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
           <div>
@@ -125,7 +226,8 @@ export default function AssignmentsPage() {
             </h1>
 
             <p className="mt-1 text-sm text-slate-500">
-              Create, organize and monitor assignments across your courses.
+              Create, organize and monitor assignments
+              across your courses.
             </p>
           </div>
 
@@ -140,7 +242,12 @@ export default function AssignmentsPage() {
       </header>
 
       <main className="space-y-6 p-8">
-        {/* STATS */}
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
         <div className="grid gap-5 md:grid-cols-4">
           <StatCard
             icon={FileText}
@@ -167,100 +274,70 @@ export default function AssignmentsPage() {
           />
         </div>
 
-        {/* VIDEO PLAYER SECTION */}
         <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
           <div className="border-b px-6 py-5">
             <div className="flex items-center gap-2">
-              <Video size={19} className="text-[#087f87]" />
+              <Video
+                size={19}
+                className="text-[#087f87]"
+              />
 
               <h2 className="font-bold text-slate-900">
-                Assignment Video
+                Assignment Overview
               </h2>
             </div>
 
             <p className="mt-1 text-xs text-slate-500">
-              Provide students with an instructional video related to the
-              selected assignment.
+              Select an assignment to view its details.
             </p>
           </div>
 
-          <div className="grid gap-6 p-6 lg:grid-cols-[1.5fr_1fr]">
-            {/* VIDEO PLAYER */}
-            <div className="relative overflow-hidden rounded-xl bg-[#172636]">
-              <div className="aspect-video w-full">
-                <video
-                  controls
-                  className="h-full w-full object-cover"
-                  poster="/video-thumbnail.jpg"
-                >
-                  <source
-                    src="/videos/assignment-introduction.mp4"
-                    type="video/mp4"
-                  />
+          {selectedAssignment ? (
+            <div className="p-6">
+              <div className="rounded-xl border bg-[#f8fafb] p-5">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#087f87]">
+                  Selected Assignment
+                </span>
 
-                  Your browser does not support the video element.
-                </video>
-              </div>
+                <h3 className="mt-2 text-xl font-bold text-[#172636]">
+                  {selectedAssignment.title}
+                </h3>
 
-              {/* Video overlay */}
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg">
-                  <Play
-                    size={23}
-                    className="ml-1 text-[#087f87]"
-                    fill="currentColor"
-                  />
-                </div>
-              </div>
-            </div>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  {selectedAssignment.description}
+                </p>
 
-            {/* VIDEO INFORMATION */}
-            <div className="flex flex-col justify-center">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#087f87]">
-                Instructional Video
-              </span>
-
-              <h3 className="mt-2 text-xl font-bold text-[#172636]">
-                {selectedAssignment.videoTitle}
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-slate-500">
-                Watch this video to understand the assignment requirements,
-                important instructions and expected submission format.
-              </p>
-
-              <div className="mt-5 flex flex-wrap gap-3">
-                <div className="rounded-lg bg-[#eaf7f7] px-3 py-2 text-xs font-medium text-[#087f87]">
-                  {selectedAssignment.course}
-                </div>
-
-                <div className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600">
-                  {selectedAssignment.videoDuration}
-                </div>
-              </div>
-
-              <div className="mt-6 rounded-xl border border-[#e5e9ea] bg-[#f8fafb] p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#eaf7f7] text-[#087f87]">
-                    <FileText size={18} />
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <div className="rounded-lg bg-[#eaf7f7] px-3 py-2 text-xs font-medium text-[#087f87]">
+                    {getCourseTitle(selectedAssignment)}
                   </div>
 
-                  <div>
-                    <p className="text-xs font-semibold text-slate-900">
-                      Selected Assignment
-                    </p>
+                  <div className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600">
+                    Due{" "}
+                    {formatDate(
+                      selectedAssignment.dueDate
+                    )}
+                  </div>
 
-                    <p className="mt-0.5 text-xs text-slate-500">
-                      {selectedAssignment.title}
-                    </p>
+                  <div className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600">
+                    {selectedAssignment.totalMarks} Marks
+                  </div>
+
+                  <div className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600">
+                    {selectedAssignment.submissionCount ||
+                      0}{" "}
+                    Submissions
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="p-10 text-center text-sm text-slate-500">
+              No assignment selected.
+            </div>
+          )}
         </section>
 
-        {/* ASSIGNMENT LIBRARY */}
         <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
           <div className="flex flex-col gap-4 border-b p-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
@@ -269,7 +346,8 @@ export default function AssignmentsPage() {
               </h2>
 
               <p className="mt-1 text-xs text-slate-500">
-                Manage assignments and track submission activity.
+                Manage assignments and track submission
+                activity.
               </p>
             </div>
 
@@ -282,7 +360,9 @@ export default function AssignmentsPage() {
 
                 <input
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) =>
+                    setSearch(e.target.value)
+                  }
                   placeholder="Search assignments..."
                   className="w-full rounded-lg border py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-[#087f87] sm:w-64"
                 />
@@ -290,126 +370,142 @@ export default function AssignmentsPage() {
 
               <select
                 value={filter}
-                onChange={(e) => setFilter(e.target.value)}
+                onChange={(e) =>
+                  setFilter(e.target.value)
+                }
                 className="rounded-lg border px-4 py-2.5 text-sm outline-none focus:border-[#087f87]"
               >
-                <option value="All">All Assignments</option>
-                <option value="Published">Published</option>
+                <option value="All">
+                  All Assignments
+                </option>
+                <option value="Published">
+                  Published
+                </option>
                 <option value="Draft">Draft</option>
                 <option value="Closed">Closed</option>
               </select>
             </div>
           </div>
 
-          <div className="divide-y">
-            {filteredAssignments.map((assignment) => {
-              const submissionPercentage =
-                assignment.totalStudents === 0
-                  ? 0
-                  : Math.round(
-                      (assignment.submissions /
-                        assignment.totalStudents) *
-                        100
-                    );
-
-              const isSelected =
-                selectedAssignment.id === assignment.id;
-
-              return (
-                <div
-                  key={assignment.id}
-                  onClick={() => setSelectedAssignment(assignment)}
-                  className={`flex cursor-pointer flex-col gap-5 p-6 transition lg:flex-row lg:items-center lg:justify-between ${
-                    isSelected
-                      ? "bg-[#f2fafa]"
-                      : "hover:bg-slate-50"
-                  }`}
-                >
-                  <div className="flex min-w-0 items-start gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf7f7] text-[#087f87]">
-                      <FileText size={21} />
-                    </div>
-
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-slate-900">
-                        {assignment.title}
-                      </h3>
-
-                      <p className="mt-1 text-sm text-slate-500">
-                        {assignment.course}
-                      </p>
-
-                      <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-slate-500">
-                        <span className="flex items-center gap-1.5">
-                          <CalendarDays size={14} />
-                          Due {assignment.dueDate}
-                        </span>
-
-                        <span className="flex items-center gap-1.5">
-                          <Users size={14} />
-                          {assignment.submissions}/
-                          {assignment.totalStudents} submitted
-                        </span>
-
-                        <span className="flex items-center gap-1.5 text-[#087f87]">
-                          <Video size={14} />
-                          Video attached
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-5">
-                    <div className="hidden w-32 sm:block">
-                      <div className="mb-1 flex justify-between text-[10px] text-slate-500">
-                        <span>Submissions</span>
-                        <span>{submissionPercentage}%</span>
-                      </div>
-
-                      <div className="h-1.5 rounded-full bg-slate-100">
-                        <div
-                          className="h-full rounded-full bg-[#087f87]"
-                          style={{
-                            width: `${submissionPercentage}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <StatusBadge status={assignment.status} />
-
-                    <button
-                      type="button"
-                      onClick={(e) => e.stopPropagation()}
-                      className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                    >
-                      <MoreHorizontal size={19} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {filteredAssignments.length === 0 && (
-            <div className="px-6 py-16 text-center">
-              <AlertCircle
-                className="mx-auto text-slate-300"
+          {loading ? (
+            <div className="flex justify-center py-16">
+              <Loader2
                 size={30}
+                className="animate-spin text-[#087f87]"
               />
-
-              <p className="mt-3 font-medium text-slate-700">
-                No assignments found
-              </p>
-
-              <p className="mt-1 text-sm text-slate-500">
-                Try changing your search or filter.
-              </p>
             </div>
+          ) : (
+            <>
+              <div className="divide-y">
+                {filteredAssignments.map(
+                  (assignment) => {
+                    const submissionCount =
+                      assignment.submissionCount || 0;
+
+                    const isSelected =
+                      selectedAssignment?._id ===
+                      assignment._id;
+
+                    const status =
+                      getStatus(assignment);
+
+                    return (
+                      <div
+                        key={assignment._id}
+                        onClick={() =>
+                          setSelectedAssignment(
+                            assignment
+                          )
+                        }
+                        className={`flex cursor-pointer flex-col gap-5 p-6 transition lg:flex-row lg:items-center lg:justify-between ${
+                          isSelected
+                            ? "bg-[#f2fafa]"
+                            : "hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="flex min-w-0 items-start gap-4">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf7f7] text-[#087f87]">
+                            <FileText size={21} />
+                          </div>
+
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-slate-900">
+                              {assignment.title}
+                            </h3>
+
+                            <p className="mt-1 text-sm text-slate-500">
+                              {getCourseTitle(
+                                assignment
+                              )}
+                            </p>
+
+                            <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-slate-500">
+                              <span className="flex items-center gap-1.5">
+                                <CalendarDays size={14} />
+                                Due{" "}
+                                {formatDate(
+                                  assignment.dueDate
+                                )}
+                              </span>
+
+                              <span className="flex items-center gap-1.5">
+                                <Users size={14} />
+                                {submissionCount}{" "}
+                                submitted
+                              </span>
+
+                              <span className="flex items-center gap-1.5 text-[#087f87]">
+                                <FileText size={14} />
+                                {assignment.totalMarks}{" "}
+                                marks
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-5">
+                          <StatusBadge
+                            status={status}
+                          />
+
+                          <button
+                            type="button"
+                            onClick={(e) =>
+                              e.stopPropagation()
+                            }
+                            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                          >
+                            <MoreHorizontal
+                              size={19}
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+
+              {filteredAssignments.length === 0 && (
+                <div className="px-6 py-16 text-center">
+                  <AlertCircle
+                    className="mx-auto text-slate-300"
+                    size={30}
+                  />
+
+                  <p className="mt-3 font-medium text-slate-700">
+                    No assignments found
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Try changing your search or filter.
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </section>
 
-        {/* SUBMISSIONS LINK */}
         <Link
           href="/teacher/submissions"
           className="flex items-center justify-between rounded-xl border bg-white p-5 shadow-sm transition hover:border-[#087f87]"
