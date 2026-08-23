@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -11,9 +11,17 @@ import {
   Save,
   Send,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 
+type Course = {
+  _id: string;
+  title: string;
+};
+
 export default function CreateAssignmentPage() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   const [title, setTitle] = useState("");
   const [course, setCourse] = useState("");
   const [description, setDescription] = useState("");
@@ -21,39 +29,191 @@ export default function CreateAssignmentPage() {
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [marks, setMarks] = useState("100");
-  const [submissionType, setSubmissionType] = useState("File Upload");
+  const [submissionType, setSubmissionType] =
+    useState("File Upload");
 
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loadingCourses, setLoadingCourses] =
+    useState(true);
+
+  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<
+    "success" | "error"
+  >("success");
 
-  const handleSave = (publish: boolean) => {
-    if (!title || !course || !description || !dueDate) {
-      setMessage("Fill in all required fields before continuing.");
+  const getToken = () => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("token");
+  };
+
+  const fetchCourses = async () => {
+    const token = getToken();
+
+    if (!token) {
+      setMessage("Please log in to continue.");
+      setMessageType("error");
+      setLoadingCourses(false);
       return;
     }
 
-    setMessage(
-      publish
-        ? "Assignment published successfully."
-        : "Assignment saved as draft."
+    try {
+      const response = await fetch(`${API_URL}/courses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to load courses.");
+      }
+
+      const data = await response.json();
+
+      setCourses(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("❌ Fetch courses error:", error);
+
+      setMessage("Unable to load courses.");
+      setMessageType("error");
+    } finally {
+      setLoadingCourses(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const getSubmissionType = () => {
+    if (submissionType === "Text Submission") {
+      return "text";
+    }
+
+    if (submissionType === "File + Text") {
+      return "both";
+    }
+
+    return "file";
+  };
+
+  const handleSave = async (publish: boolean) => {
+    setMessage("");
+
+    if (!title.trim() || !course || !description.trim() || !dueDate) {
+      setMessage(
+        "Fill in all required fields before continuing."
+      );
+      setMessageType("error");
+      return;
+    }
+
+    const token = getToken();
+
+    if (!token) {
+      setMessage("Your session has expired. Please log in again.");
+      setMessageType("error");
+      return;
+    }
+
+    const selectedCourse = courses.find(
+      (item) => item._id === course
     );
+
+    if (!selectedCourse) {
+      setMessage("Please select a valid course.");
+      setMessageType("error");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      let finalDueDate = dueDate;
+
+      if (dueTime) {
+        finalDueDate = `${dueDate}T${dueTime}`;
+      }
+
+      const payload = {
+        courseId: course,
+        title: title.trim(),
+        description: description.trim(),
+        instructions: instructions.trim(),
+        dueDate: finalDueDate,
+        totalMarks: Number(marks),
+        submissionType: getSubmissionType(),
+        isPublished: publish,
+      };
+
+      const response = await fetch(
+        `${API_URL}/assignments`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message ||
+            "Failed to create assignment."
+        );
+      }
+
+      setMessage(
+        publish
+          ? "Assignment published successfully."
+          : "Assignment saved as draft."
+      );
+
+      setMessageType("success");
+
+      if (publish) {
+        setTimeout(() => {
+          window.location.href =
+            "/teacher/assignments";
+        }, 800);
+      }
+    } catch (error) {
+      console.error("❌ Create assignment error:", error);
+
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Unable to create assignment."
+      );
+
+      setMessageType("error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#F7F9FC]">
-      {/* Header */}
       <header className="border-b border-slate-200 bg-white">
         <div className="px-6 py-6 lg:px-8">
           <Link
-            href="/teacher"
+            href="/teacher/assignments"
             className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-[#087F87] hover:underline"
           >
             <ArrowLeft size={16} />
-            Teacher Dashboard
+            Assignments
           </Link>
 
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50">
-              <FileText size={22} className="text-[#087F87]" />
+              <FileText
+                size={22}
+                className="text-[#087F87]"
+              />
             </div>
 
             <div>
@@ -62,7 +222,8 @@ export default function CreateAssignmentPage() {
               </h1>
 
               <p className="text-sm text-slate-500">
-                Create an assignment and publish it to your students.
+                Create an assignment and publish it to
+                your students.
               </p>
             </div>
           </div>
@@ -74,9 +235,9 @@ export default function CreateAssignmentPage() {
           {message && (
             <div
               className={`mb-6 flex items-center gap-3 rounded-xl border px-4 py-3 text-sm ${
-                message.includes("successfully")
+                messageType === "success"
                   ? "border-green-200 bg-green-50 text-green-700"
-                  : "border-amber-200 bg-amber-50 text-amber-700"
+                  : "border-red-200 bg-red-50 text-red-700"
               }`}
             >
               <CheckCircle2 size={18} />
@@ -85,7 +246,6 @@ export default function CreateAssignmentPage() {
           )}
 
           <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-            {/* Main Form */}
             <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="border-b border-slate-200 px-6 py-5">
                 <h2 className="font-bold text-slate-900">
@@ -93,32 +253,36 @@ export default function CreateAssignmentPage() {
                 </h2>
 
                 <p className="mt-1 text-xs text-slate-500">
-                  Provide the information students need to complete this
-                  assignment.
+                  Provide the information students need
+                  to complete this assignment.
                 </p>
               </div>
 
               <div className="space-y-6 p-6">
-                {/* Title */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Assignment Title
-                    <span className="ml-1 text-red-500">*</span>
+                    <span className="ml-1 text-red-500">
+                      *
+                    </span>
                   </label>
 
                   <input
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) =>
+                      setTitle(e.target.value)
+                    }
                     placeholder="e.g. Environmental Systems Analysis"
                     className="h-12 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none transition focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/10"
                   />
                 </div>
 
-                {/* Course */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Course
-                    <span className="ml-1 text-red-500">*</span>
+                    <span className="ml-1 text-red-500">
+                      *
+                    </span>
                   </label>
 
                   <div className="relative">
@@ -129,46 +293,49 @@ export default function CreateAssignmentPage() {
 
                     <select
                       value={course}
-                      onChange={(e) => setCourse(e.target.value)}
-                      className="h-12 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none focus:border-[#087F87]"
+                      onChange={(e) =>
+                        setCourse(e.target.value)
+                      }
+                      disabled={loadingCourses}
+                      className="h-12 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none focus:border-[#087F87] disabled:bg-slate-50"
                     >
-                      <option value="">Select a course</option>
-                      <option value="Environmental Science">
-                        Environmental Science
+                      <option value="">
+                        {loadingCourses
+                          ? "Loading courses..."
+                          : "Select a course"}
                       </option>
-                      <option value="Biology 201">
-                        Biology 201
-                      </option>
-                      <option value="Computer Science 320">
-                        Computer Science 320
-                      </option>
-                      <option value="Psychology 150">
-                        Psychology 150
-                      </option>
-                      <option value="Mathematics 120">
-                        Mathematics 120
-                      </option>
+
+                      {courses.map((item) => (
+                        <option
+                          key={item._id}
+                          value={item._id}
+                        >
+                          {item.title}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
 
-                {/* Description */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Description
-                    <span className="ml-1 text-red-500">*</span>
+                    <span className="ml-1 text-red-500">
+                      *
+                    </span>
                   </label>
 
                   <textarea
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) =>
+                      setDescription(e.target.value)
+                    }
                     rows={5}
                     placeholder="Explain what students need to complete..."
                     className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/10"
                   />
                 </div>
 
-                {/* Instructions */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Instructions
@@ -176,19 +343,22 @@ export default function CreateAssignmentPage() {
 
                   <textarea
                     value={instructions}
-                    onChange={(e) => setInstructions(e.target.value)}
+                    onChange={(e) =>
+                      setInstructions(e.target.value)
+                    }
                     rows={5}
                     placeholder="Add detailed instructions, requirements, or grading criteria..."
                     className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none focus:border-[#087F87] focus:ring-2 focus:ring-[#087F87]/10"
                   />
                 </div>
 
-                {/* Dates */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-slate-700">
                       Due Date
-                      <span className="ml-1 text-red-500">*</span>
+                      <span className="ml-1 text-red-500">
+                        *
+                      </span>
                     </label>
 
                     <div className="relative">
@@ -200,7 +370,9 @@ export default function CreateAssignmentPage() {
                       <input
                         type="date"
                         value={dueDate}
-                        onChange={(e) => setDueDate(e.target.value)}
+                        onChange={(e) =>
+                          setDueDate(e.target.value)
+                        }
                         className="h-12 w-full rounded-xl border border-slate-200 pl-10 pr-3 text-sm outline-none focus:border-[#087F87]"
                       />
                     </div>
@@ -220,14 +392,15 @@ export default function CreateAssignmentPage() {
                       <input
                         type="time"
                         value={dueTime}
-                        onChange={(e) => setDueTime(e.target.value)}
+                        onChange={(e) =>
+                          setDueTime(e.target.value)
+                        }
                         className="h-12 w-full rounded-xl border border-slate-200 pl-10 pr-3 text-sm outline-none focus:border-[#087F87]"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Marks + Submission */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-slate-700">
@@ -238,7 +411,9 @@ export default function CreateAssignmentPage() {
                       type="number"
                       min="1"
                       value={marks}
-                      onChange={(e) => setMarks(e.target.value)}
+                      onChange={(e) =>
+                        setMarks(e.target.value)
+                      }
                       className="h-12 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none focus:border-[#087F87]"
                     />
                   </div>
@@ -250,40 +425,68 @@ export default function CreateAssignmentPage() {
 
                     <select
                       value={submissionType}
-                      onChange={(e) => setSubmissionType(e.target.value)}
+                      onChange={(e) =>
+                        setSubmissionType(
+                          e.target.value
+                        )
+                      }
                       className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-[#087F87]"
                     >
-                      <option>File Upload</option>
-                      <option>Text Submission</option>
-                      <option>File + Text</option>
+                      <option value="File Upload">
+                        File Upload
+                      </option>
+
+                      <option value="Text Submission">
+                        Text Submission
+                      </option>
+
+                      <option value="File + Text">
+                        File + Text
+                      </option>
                     </select>
                   </div>
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={() => handleSave(false)}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                  disabled={saving}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <Save size={17} />
+                  {saving ? (
+                    <Loader2
+                      size={17}
+                      className="animate-spin"
+                    />
+                  ) : (
+                    <Save size={17} />
+                  )}
+
                   Save Draft
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleSave(true)}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#087F87] px-5 text-sm font-semibold text-white transition hover:bg-[#066B72]"
+                  disabled={saving}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#087F87] px-5 text-sm font-semibold text-white transition hover:bg-[#066B72] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <Send size={17} />
+                  {saving ? (
+                    <Loader2
+                      size={17}
+                      className="animate-spin"
+                    />
+                  ) : (
+                    <Send size={17} />
+                  )}
+
                   Publish Assignment
                 </button>
               </div>
             </section>
 
-            {/* Preview / Sidebar */}
             <aside className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h3 className="font-bold text-slate-800">
@@ -292,7 +495,9 @@ export default function CreateAssignmentPage() {
 
                 <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#087F87]">
-                    {course || "Course"}
+                    {courses.find(
+                      (item) => item._id === course
+                    )?.title || "Course"}
                   </p>
 
                   <h4 className="mt-2 text-lg font-bold text-slate-900">
@@ -353,10 +558,21 @@ export default function CreateAssignmentPage() {
                     </h3>
 
                     <ul className="mt-2 space-y-1.5 text-xs leading-5 text-teal-800">
-                      <li>• Select the correct course.</li>
-                      <li>• Set a clear deadline.</li>
-                      <li>• Include enough instructions.</li>
-                      <li>• Confirm the total marks.</li>
+                      <li>
+                        • Select the correct course.
+                      </li>
+
+                      <li>
+                        • Set a clear deadline.
+                      </li>
+
+                      <li>
+                        • Include enough instructions.
+                      </li>
+
+                      <li>
+                        • Confirm the total marks.
+                      </li>
                     </ul>
                   </div>
                 </div>
