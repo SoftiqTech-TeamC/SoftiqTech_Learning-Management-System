@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const verifyToken = require('../middleware/auth.middleware');
 const requireRole = require('../middleware/role.middleware');
+
 const {
   getAssignments,
   getAssignmentById,
@@ -14,13 +15,12 @@ const {
   getMySubmissions,
 } = require('../controllers/assignment.controller');
 
-// Student routes
+router.get('/my/submissions', verifyToken, getMySubmissions);
+router.post('/:id/submit', verifyToken, submitAssignment);
+
 router.get('/', verifyToken, getAssignments);
 router.get('/:id', verifyToken, getAssignmentById);
-router.post('/:id/submit', verifyToken, submitAssignment);
-router.get('/my/submissions', verifyToken, getMySubmissions);
 
-// Teacher/Admin routes
 router.post('/', verifyToken, requireRole(['teacher', 'admin']), createAssignment);
 router.put('/:id', verifyToken, requireRole(['teacher', 'admin']), updateAssignment);
 router.delete('/:id', verifyToken, requireRole(['teacher', 'admin']), deleteAssignment);

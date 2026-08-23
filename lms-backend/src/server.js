@@ -11,6 +11,7 @@ const quizRoutes = require('./routes/quiz.routes');
 const assignmentRoutes = require('./routes/assignment.routes');
 const submissionRoutes = require('./routes/submission.routes');
 const discussionRoutes = require('./routes/discussion.routes');
+const quizAttemptRoutes = require('./routes/quizAttempt.routes');
 const mongoose = require('mongoose');
 
 const app = express();
@@ -36,6 +37,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/quizzes', quizRoutes);
+app.use('/api/quiz-attempts', quizAttemptRoutes);
+
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/discussions', discussionRoutes);
 app.use('/api', submissionRoutes);
