@@ -69,6 +69,7 @@ export default function CoursesPage() {
 
             {/* Course 1 */}
             <CourseCard
+              disciplineId="6a84653a24dfb7e6ed79a6b8"
               image="/courses/ai.jpg"
               alt="AI Course"
               title="AI & ML Fundamentals"
@@ -78,6 +79,7 @@ export default function CoursesPage() {
 
             {/* Course 2 */}
             <CourseCard
+              disciplineId="6a84653a24dfb7e6ed79a6b9"
               image="/courses/business.jpg"
               alt="Business Strategy"
               title="Business Strategy Essentials"
@@ -87,6 +89,7 @@ export default function CoursesPage() {
 
             {/* Course 3 */}
             <CourseCard
+              disciplineId="6a84653a24dfb7e6ed79a6ba"
               image="/courses/ux-ui.jpg"
               alt="UX UI"
               title="UX/UI Design Masterclass"
@@ -96,6 +99,7 @@ export default function CoursesPage() {
 
             {/* Course 4 */}
             <CourseCard
+              disciplineId="6a84653a24dfb7e6ed79a6bb"
               image="/courses/cybersecurity.jpg"
               alt="Cybersecurity"
               title="Cybersecurity Essentials"
@@ -105,6 +109,7 @@ export default function CoursesPage() {
 
             {/* Course 5 */}
             <CourseCard
+              disciplineId="6a84653a24dfb7e6ed79a6b7"
               image="/courses/python.jpg"
               alt="Data Science with Python"
               title="Data Science with Python"
@@ -114,6 +119,7 @@ export default function CoursesPage() {
 
             {/* Course 6 */}
             <CourseCard
+              disciplineId="6a84653a24dfb7e6ed79a6bc"
               image="/courses/photography.jpg"
               alt="Photography"
               title="Digital Photography Pro"
@@ -123,6 +129,7 @@ export default function CoursesPage() {
 
             {/* Course 7 */}
             <CourseCard
+              disciplineId="6a84653a24dfb7e6ed79a6bd"
               image="/courses/astrophysics.jpg"
               alt="Astrophysics"
               title="Introduction to Astrophysics"
@@ -132,6 +139,7 @@ export default function CoursesPage() {
 
             {/* Course 8 */}
             <CourseCard
+              disciplineId="6a84653a24dfb7e6ed79a6be"
               image="/courses/sustainability.jpg"
               alt="Sustainability"
               title="Sustainability in Business"
@@ -152,12 +160,14 @@ export default function CoursesPage() {
 ========================= */
 
 function CourseCard({
+  disciplineId,
   image,
   alt,
   title,
   teacher,
   href,
 }: {
+  disciplineId: string;
   image: string;
   alt: string;
   title: string;

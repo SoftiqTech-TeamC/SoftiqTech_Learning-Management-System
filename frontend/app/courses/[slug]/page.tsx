@@ -1,3 +1,8 @@
+"use client";
+
+import React from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -561,14 +566,69 @@ const courses: Record<string, Course> = {
   },
 };
 
-export default async function CourseDetailsPage({
+export default function CourseDetailsPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  const router = useRouter();
+
+  // Unwrap params
+  const unwrappedParams = React.use(params);
+  const slug = unwrappedParams.slug;
+
+  const [enrolling, setEnrolling] = useState(false);
+  const [enrollError, setEnrollError] = useState("");
+  const [enrollSuccess, setEnrollSuccess] = useState("");
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   const course = courses[slug];
+
+  // ENROLL FUNCTION
+  const handleEnroll = async () => {
+    setEnrolling(true);
+    setEnrollError("");
+    setEnrollSuccess("");
+
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      if (!course._id) {
+        setEnrollError("Course ID not found");
+        setEnrolling(false);
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/courses/${course._id}/enroll`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to enroll");
+      }
+
+      setEnrollSuccess("Successfully enrolled in this course!");
+      setIsEnrolled(true);
+    } catch (err: any) {
+      setEnrollError(err.message || "Failed to enroll. Please try again.");
+    } finally {
+      setEnrolling(false);
+    }
+  };
 
   if (!course) {
     return (
@@ -868,12 +928,35 @@ export default async function CourseDetailsPage({
                 </span>
               </div>
 
-              <button className="w-full mt-5 bg-[#0B8B90] hover:bg-[#096F73] text-white rounded-lg py-3 font-semibold text-[16px]">
-                Enroll Now
-              </button>
+              {/* ENROLL BUTTON - NOW WITH FUNCTIONALITY */}
+              {enrollError && (
+                <div className="mt-2 rounded-md bg-red-50 p-2 text-sm text-red-600">
+                  {enrollError}
+                </div>
+              )}
+
+              {enrollSuccess && (
+                <div className="mt-2 rounded-md bg-green-50 p-2 text-sm text-green-600">
+                  {enrollSuccess}
+                </div>
+              )}
+
+              {!isEnrolled ? (
+                <button
+                  onClick={handleEnroll}
+                  disabled={enrolling}
+                  className="w-full mt-5 bg-[#0B8B90] hover:bg-[#096F73] text-white rounded-lg py-3 font-semibold text-[16px] disabled:opacity-50"
+                >
+                  {enrolling ? "Enrolling..." : "Enroll Now"}
+                </button>
+              ) : (
+                <div className="w-full mt-5 bg-green-50 text-green-600 rounded-lg py-3 font-semibold text-center">
+                  You are enrolled
+                </div>
+              )}
 
               <button className="w-full mt-3 border border-[#0B8B90] text-[#0B8B90] rounded-lg py-3 font-semibold">
-                ♡ Add to Wishlist
+                Add to Wishlist
               </button>
 
               <div className="border-t mt-6 pt-5 space-y-4">

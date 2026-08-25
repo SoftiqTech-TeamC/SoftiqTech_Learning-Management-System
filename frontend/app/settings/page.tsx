@@ -3,10 +3,11 @@ import SettingsPage from "@/components/settings/SettingsPage";
 
 export default function Settings() {
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen bg-[#f8fafb]">
       <Sidebar />
 
-      <main className="flex-1">
+      {/* ml-[240px] pushes content clear of the fixed 240px sidebar */}
+      <main className="ml-[240px] min-h-screen p-6">
         <SettingsPage />
       </main>
     </div>

@@ -38,7 +38,6 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/quiz-attempts', quizAttemptRoutes);
-
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/discussions', discussionRoutes);
 app.use('/api', submissionRoutes);

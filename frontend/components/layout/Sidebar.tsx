@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
   LayoutDashboard,
@@ -56,20 +57,11 @@ const navigation = [
     icon: Settings,
     href: "/settings",
   },
-  {
-    label: "Logout",
-    icon: LogOut,
-    href: "#",
-  },
 ];
 
-interface SidebarProps {
-  active?: string;
-}
-
-export default function Sidebar({
-  active = "Dashboard",
-}: SidebarProps) {
+export default function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
   const [userName, setUserName] = useState("Student");
 
   useEffect(() => {
@@ -89,6 +81,19 @@ export default function Sidebar({
   }, []);
 
   const userInitial = userName.charAt(0).toUpperCase();
+
+  const isActive = (href: string) => {
+    if (href === "#") return false;
+    if (href === "/student") return pathname === "/student";
+    return pathname === href || pathname.startsWith(href + "/");
+  };
+
+  // LOGOUT FUNCTION
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.push("/login");
+  };
 
   return (
     <aside className="fixed left-0 top-0 z-50 flex h-screen w-[240px] flex-col bg-[#172636] text-white">
@@ -118,13 +123,14 @@ export default function Sidebar({
         <div className="space-y-2">
           {navigation.map((item) => {
             const Icon = item.icon;
+            const active = isActive(item.href);
 
             return (
               <Link
                 key={item.label}
                 href={item.href}
                 className={`flex h-[44px] items-center gap-4 rounded-lg px-4 text-[13px] transition ${
-                  active === item.label
+                  active
                     ? "bg-[#08a7aa] text-white shadow-sm"
                     : "text-white/65 hover:bg-white/5 hover:text-white"
                 }`}
@@ -138,6 +144,18 @@ export default function Sidebar({
               </Link>
             );
           })}
+
+          {/* LOGOUT BUTTON - SEPARATE FROM NAVIGATION */}
+          <button
+            onClick={handleLogout}
+            className="flex h-[44px] w-full items-center gap-4 rounded-lg px-4 text-[13px] text-white/65 transition hover:bg-white/5 hover:text-white"
+          >
+            <LogOut
+              size={18}
+              strokeWidth={1.7}
+            />
+            <span>Logout</span>
+          </button>
         </div>
       </nav>
 
@@ -147,12 +165,10 @@ export default function Sidebar({
           href="/profile"
           className="flex items-center gap-3 rounded-lg p-1 transition hover:bg-white/5"
         >
-          {/* User Initial */}
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#08a7aa] text-sm font-semibold">
             {userInitial}
           </div>
 
-          {/* User Name */}
           <div className="min-w-0">
             <p className="truncate text-[13px] font-medium">
               {userName}
