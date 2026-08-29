@@ -1,6 +1,6 @@
 "use client";
 
-import Sidebar from "@/components/layout/Sidebar";
+import Sidebar from "@/components/teacher/TeacherSidebar";
 import Link from "next/link";
 import {
   BookOpen,

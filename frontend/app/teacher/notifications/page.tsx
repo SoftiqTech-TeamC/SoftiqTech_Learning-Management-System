@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "@/components/layout/Sidebar";
+import Sidebar from "@/components/teacher/TeacherSidebar";
 import {
   Bell,
   CheckCheck,

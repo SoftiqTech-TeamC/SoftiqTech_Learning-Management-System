@@ -14,6 +14,8 @@ import {
   Bell,
   Settings,
   LogOut,
+  ClipboardCheck,
+  MessageCircle,
 } from "lucide-react";
 
 const navigation = [
@@ -33,6 +35,11 @@ const navigation = [
     href: "/student/calendar",
   },
   {
+    label: "Assignments",
+    icon: ClipboardCheck,
+    href: "/student/assignments",
+  },
+  {
     label: "Quizzes",
     icon: Brain,
     href: "/quizzes",
@@ -46,6 +53,11 @@ const navigation = [
     label: "Certificates",
     icon: Award,
     href: "/student/certificates",
+  },
+  {
+    label: "Discussions",
+    icon: MessageCircle,
+    href: "/student/discussions",
   },
   {
     label: "Notifications",
@@ -62,6 +74,7 @@ const navigation = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+
   const [userName, setUserName] = useState("Student");
 
   useEffect(() => {
@@ -83,15 +96,17 @@ export default function Sidebar() {
   const userInitial = userName.charAt(0).toUpperCase();
 
   const isActive = (href: string) => {
-    if (href === "#") return false;
-    if (href === "/student") return pathname === "/student";
+    if (href === "/student") {
+      return pathname === "/student";
+    }
+
     return pathname === href || pathname.startsWith(href + "/");
   };
 
-  // LOGOUT FUNCTION
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
     router.push("/login");
   };
 
@@ -112,15 +127,15 @@ export default function Sidebar() {
             Nexus
           </h1>
 
-          <p className="mt-1 text-[13px] text-white/90">
+          <p className="mt-1 text-[13px] text-white/70">
             Learning
           </p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 pt-5">
-        <div className="space-y-2">
+      <nav className="flex-1 overflow-y-auto px-3 pt-3">
+        <div className="space-y-1.5">
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -129,41 +144,35 @@ export default function Sidebar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`flex h-[44px] items-center gap-4 rounded-lg px-4 text-[13px] transition ${
+                className={`flex h-[44px] items-center gap-4 rounded-lg px-4 text-[13px] transition-all ${
                   active
                     ? "bg-[#08a7aa] text-white shadow-sm"
                     : "text-white/65 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <Icon
-                  size={18}
-                  strokeWidth={1.7}
-                />
-
+                <Icon size={18} strokeWidth={1.7} />
                 <span>{item.label}</span>
               </Link>
             );
           })}
 
-          {/* LOGOUT BUTTON - SEPARATE FROM NAVIGATION */}
+          {/* Logout */}
           <button
+            type="button"
             onClick={handleLogout}
             className="flex h-[44px] w-full items-center gap-4 rounded-lg px-4 text-[13px] text-white/65 transition hover:bg-white/5 hover:text-white"
           >
-            <LogOut
-              size={18}
-              strokeWidth={1.7}
-            />
+            <LogOut size={18} strokeWidth={1.7} />
             <span>Logout</span>
           </button>
         </div>
       </nav>
 
-      {/* User Profile */}
-      <div className="border-t border-white/10 p-5">
+      {/* Student Profile */}
+      <div className="border-t border-white/10 p-4">
         <Link
           href="/profile"
-          className="flex items-center gap-3 rounded-lg p-1 transition hover:bg-white/5"
+          className="flex items-center gap-3 rounded-lg p-2 transition hover:bg-white/5"
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#08a7aa] text-sm font-semibold">
             {userInitial}
@@ -179,10 +188,19 @@ export default function Sidebar() {
             </p>
           </div>
 
-          <span className="ml-auto text-lg text-white/50">
+          <span className="ml-auto text-lg text-white/40">
             ›
           </span>
         </Link>
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="mt-2 flex h-[42px] w-full items-center gap-4 rounded-lg px-4 text-[13px] text-white/65 transition hover:bg-red-500/10 hover:text-red-300"
+        >
+          <LogOut size={18} strokeWidth={1.7} />
+          <span>Logout</span>
+        </button>
       </div>
     </aside>
   );
