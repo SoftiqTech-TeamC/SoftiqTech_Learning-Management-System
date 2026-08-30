@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -5,6 +6,7 @@ import Link from "next/link";
 const roles = [
   {
     title: "Faculty",
+    role: "faculty",
     description: "Teach, inspire and shape the future.",
     icon: (
       <svg
@@ -41,6 +43,7 @@ const roles = [
   },
   {
     title: "Student",
+    role: "student",
     description: "Learn, explore and achieve your goals.",
     icon: (
       <svg
@@ -80,6 +83,7 @@ const roles = [
   },
   {
     title: "Admin",
+    role: "admin",
     description: "Manage, monitor and empower learning.",
     icon: (
       <svg
@@ -181,7 +185,7 @@ export default function Home() {
           {roles.map((role, index) => (
             <Link
               key={role.title}
-              href={`/register?role=${role.title.toLowerCase()}`}
+              href={`/login?role=${role.role}`}
               className={`group relative block transition duration-300 hover:-translate-y-1 ${
                 index === 0
                   ? "ml-0"
