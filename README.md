@@ -1,406 +1,307 @@
 # SoftiqTech Learning Management System (LMS)
 
-A modern Learning Management System built using **Next.js** for the frontend and **Django REST Framework** for the backend. The application follows a RESTful architecture with JWT-based authentication and a modular codebase to support scalable LMS features.
+A modern Learning Management System (LMS) built using **Next.js** for the frontend and **Node.js/Express.js** for the backend. The application follows a RESTful architecture with JWT-based authentication and a modular codebase designed to support scalable LMS features.
 
 ---
 
-# Tech Stack
+## Tech Stack
 
-## Frontend
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-- Shadcn UI
+### Frontend
 
-## Backend
-- Django
-- Django REST Framework
-- Simple JWT Authentication
-- PostgreSQL (Neon)
+* Next.js
+* TypeScript
+* Tailwind CSS
+* Shadcn UI
 
-## Development Tools
-- Git
-- GitHub
-- Postman
-- VS Code
-- Vercel (Deployment)
-- Render / Railway (Deployment)
+### Backend
+
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
+* JWT Authentication
+
+### Deployment
+
+* Vercel — Frontend
+* Hugging Face Spaces — Backend
 
 ---
 
-# Project Structure
+## Completed Features
+
+### Authentication
+
+* User Registration
+* User Login
+* JWT Authentication
+* Role-Based Access Control
+
+  * Student
+  * Teacher
+  * Admin
+
+### Course Management
+
+* Course Model
+* Course CRUD APIs
+* Course Enrollment APIs
+* Teacher APIs for creating and managing courses
+
+### Quiz and Assignment Management
+
+* Quiz Model
+* Assignment Model
+* Quiz CRUD APIs
+* Assignment CRUD APIs
+* Submission Model
+
+### Frontend Pages
+
+* Login Page
+* Registration Page
+* Student Dashboard
+* Teacher Dashboard
+* Admin Dashboard
+* Admin Reports Module
+* Teacher Assignments and Quizzes Pages
+* Student Calendar
+* Student Certificates
+* Assignments Page
+
+### Backend APIs
+
+* Authentication APIs
+* Course APIs
+* Quiz APIs
+* Assignment APIs
+* Discussion APIs
+* Notification APIs
+
+---
+
+## Project Structure
 
 ```text
 SoftiqTech_Learning-Management-System/
 │
-├── lms-backend/
-│   ├── api/
-│   ├── core/
-│   ├── users/
-│   ├── courses/
-│   ├── learning/
-│   ├── analytics/
-│   └── manage.py
-│
 ├── frontend/
 │   ├── app/
+│   │   ├── login/
+│   │   ├── register/
+│   │   ├── student/
+│   │   ├── teacher/
+│   │   ├── admin/
+│   │   ├── courses/
+│   │   ├── quizzes/
+│   │   └── assignments/
+│   │
 │   ├── components/
-│   ├── context/
-│   ├── services/
-│   └── public/
+│   └── lib/
+│
+├── lms-backend/
+│   ├── src/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── config/
+│   │   └── server.js
+│   │
+│   ├── package.json
+│   └── .env
 │
 └── README.md
 ```
 
 ---
 
-# Features
+## Getting Started
 
-## Authentication
-- User Registration
-- User Login
-- JWT Authentication
-- Access Token
-- Refresh Token
-- Protected API Endpoints
-- Persistent User Session
-- Logout Functionality
-- Role-Based Access Control (RBAC)
-  - Student
-  - Teacher
-  - Admin
+### Backend Setup
 
-## Dashboard
-- Student Dashboard
-- Teacher Dashboard
-- Admin Dashboard
-- Dashboard Statistics
-- Serializer-Based Response
-- JWT Protected Endpoints
-- RESTful API Design
-
-## Course Management
-- Course Listing
-- Course Details
-- Course Creation (CRUD)
-- Course Enrollment
-- Video Lessons
-- Video Player
-
-## Learning Area
-- Quizzes
-- Assignments
-- Assignment Submissions
-- Progress Tracking
-- Certificate Generation
-
-## Supporting Features
-- Notifications & Real-Time Alerts
-- Discussion / Chat
-- Calendar
-- Search & Filters
-- File Upload & Media
-
-## Analytics & Reports
-- Analytics Dashboard
-- Charts & Visualizations
-- Report Export (PDF / Excel)
-
----
-
-# API Endpoints
-
-## Authentication
-
-| Method | Endpoint |
-|--------|----------|
-| POST | `/api/auth/register/` |
-| POST | `/api/auth/login/` |
-| POST | `/api/auth/refresh/` |
-| POST | `/api/auth/verify/` |
-| POST | `/api/auth/logout/` |
-
-## Users
-
-| Method | Endpoint | Authentication |
-|--------|----------|----------------|
-| GET | `/api/users/` | Required |
-| GET | `/api/users/{id}/` | Required |
-| PUT | `/api/users/{id}/` | Required |
-| DELETE | `/api/users/{id}/` | Admin Only |
-
-## Courses
-
-| Method | Endpoint | Authentication |
-|--------|----------|----------------|
-| GET | `/api/courses/` | Required |
-| GET | `/api/courses/{id}/` | Required |
-| POST | `/api/courses/` | Teacher/Admin |
-| PUT | `/api/courses/{id}/` | Teacher/Admin |
-| DELETE | `/api/courses/{id}/` | Teacher/Admin |
-| POST | `/api/courses/{id}/enroll/` | Required |
-
-## Learning
-
-| Method | Endpoint | Authentication |
-|--------|----------|----------------|
-| GET | `/api/quizzes/` | Required |
-| POST | `/api/quizzes/` | Teacher/Admin |
-| GET | `/api/assignments/` | Required |
-| POST | `/api/assignments/` | Teacher/Admin |
-| POST | `/api/assignments/{id}/submit/` | Required |
-| GET | `/api/progress/` | Required |
-| GET | `/api/certificates/` | Required |
-
-## Supporting Services
-
-| Method | Endpoint | Authentication |
-|--------|----------|----------------|
-| GET | `/api/notifications/` | Required |
-| GET | `/api/chat/` | Required |
-| GET | `/api/calendar/` | Required |
-| GET | `/api/search/` | Required |
-
-## Analytics
-
-| Method | Endpoint | Authentication |
-|--------|----------|----------------|
-| GET | `/api/analytics/dashboard/` | Required |
-| GET | `/api/analytics/reports/` | Required |
-
----
-
-# Sample API Responses
-
-## Login Response
-
-```json
-{
-  "access": "eyJhbGciOiJIUzI1NiIs...",
-  "refresh": "eyJhbGciOiJIUzI1NiIs...",
-  "user": {
-    "id": 1,
-    "email": "student@example.com",
-    "role": "student",
-    "name": "John Doe"
-  }
-}
-```
-
-## Dashboard Response
-
-```json
-{
-  "total_courses": 12,
-  "total_students": 156,
-  "total_teachers": 8,
-  "courses_in_progress": 5,
-  "completed_courses": 4,
-  "certificates_earned": 3,
-  "upcoming_assignments": 2,
-  "recent_activity": [
-    {
-      "type": "quiz",
-      "title": "Python Basics Quiz",
-      "date": "2026-08-07",
-      "score": "85%"
-    }
-  ]
-}
-```
-
----
-
-# Authentication
-
-Protected endpoints require a JWT access token.
-
-```text
-Authorization: Bearer <access_token>
-```
-
----
-
-# Backend Modules
-
-```text
-lms-backend/
-│
-├── core/
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-│
-├── users/
-│   ├── authentication.py
-│   ├── serializers.py
-│   ├── views.py
-│   ├── models.py
-│   └── urls.py
-│
-├── courses/
-│   ├── serializers.py
-│   ├── views.py
-│   ├── models.py
-│   └── urls.py
-│
-├── learning/
-│   ├── serializers.py
-│   ├── views.py
-│   ├── models.py
-│   └── urls.py
-│
-├── analytics/
-│   ├── serializers.py
-│   ├── views.py
-│   ├── models.py
-│   └── urls.py
-│
-└── manage.py
-```
-
----
-
-# Frontend Modules
-
-```text
-frontend/
-│
-├── app/
-│   ├── login/
-│   ├── register/
-│   ├── dashboard/
-│   ├── courses/
-│   ├── profile/
-│   └── settings/
-│
-├── components/
-│   ├── Navbar/
-│   ├── Sidebar/
-│   ├── Dashboard/
-│   ├── CourseCard/
-│   ├── VideoPlayer/
-│   └── common/
-│
-├── context/
-│   └── AuthContext/
-│
-├── services/
-│   ├── authService.js
-│   ├── courseService.js
-│   └── apiService.js
-│
-└── public/
-```
-
----
-
-# Authentication Flow
-
-1. User submits login credentials.
-2. Backend validates the credentials.
-3. JWT Access and Refresh tokens are generated.
-4. Tokens are stored on the client (`localStorage` / `sessionStorage`).
-5. Protected API requests include the Access Token in request headers.
-6. Unauthorized requests return **401 Unauthorized**.
-7. Refresh Token is used to obtain a new Access Token when expired.
-
----
-
-# Running the Project
-
-## Backend
+Navigate to the backend directory:
 
 ```bash
 cd lms-backend
-
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# Mac/Linux
-source venv/bin/activate
-
-pip install -r requirements.txt
-
-python manage.py migrate
-
-python manage.py runserver
 ```
 
-Backend runs at:
-
-```text
-http://127.0.0.1:8000/
-```
-
-## Frontend
+Install the required dependencies:
 
 ```bash
-cd frontend
-
 npm install
+```
 
+Create a `.env` file and configure the required environment variables:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+```
+
+Start the development server:
+
+```bash
 npm run dev
 ```
 
-Frontend runs at:
+The backend will run at:
 
 ```text
-http://localhost:3000/
+http://localhost:5000
 ```
 
----
+### Frontend Setup
 
-# Environment Variables
+Navigate to the frontend directory:
 
-## Backend (`.env`)
+```bash
+cd frontend
+```
+
+Install the required dependencies:
+
+```bash
+npm install
+```
+
+Create a `.env.local` file:
 
 ```env
-DATABASE_URL=postgresql://user:password@host:port/dbname
-SECRET_KEY=your-secret-key
-DEBUG=True
+NEXT_PUBLIC_API_URL=https://bashartc14-lms.hf.space/api
 ```
 
-## Frontend (`.env.local`)
+Start the development server:
+
+```bash
+npm run dev
+```
+
+The frontend will run at:
+
+```text
+http://localhost:3000
+```
+
+---
+
+## Environment Variables
+
+### Backend `.env`
 
 ```env
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+```
+
+### Frontend `.env.local`
+
+```env
+NEXT_PUBLIC_API_URL=https://bashartc14-lms.hf.space/api
 ```
 
 ---
 
-# Testing
+## API Endpoints
 
-The project includes API testing for:
+### Authentication
 
-- Authentication
-- JWT Authorization
-- Protected Routes
-- CRUD Operations
-- Serializer Validation
-- Role-Based Access Control (RBAC)
+| Method | Endpoint             | Description         |
+| ------ | -------------------- | ------------------- |
+| POST   | `/api/auth/register` | Register a new user |
+| POST   | `/api/auth/login`    | Login user          |
+
+### Courses
+
+| Method | Endpoint                  | Description                     |
+| ------ | ------------------------- | ------------------------------- |
+| GET    | `/api/courses`            | Get all courses                 |
+| GET    | `/api/courses/:id`        | Get course details              |
+| POST   | `/api/courses`            | Create a course (Teacher/Admin) |
+| PUT    | `/api/courses/:id`        | Update course                   |
+| DELETE | `/api/courses/:id`        | Delete course                   |
+| POST   | `/api/courses/:id/enroll` | Enroll in a course              |
+
+### Quizzes
+
+| Method | Endpoint           | Description                   |
+| ------ | ------------------ | ----------------------------- |
+| GET    | `/api/quizzes`     | Get all quizzes               |
+| GET    | `/api/quizzes/:id` | Get quiz details              |
+| POST   | `/api/quizzes`     | Create a quiz (Teacher/Admin) |
+| PUT    | `/api/quizzes/:id` | Update quiz                   |
+| DELETE | `/api/quizzes/:id` | Delete quiz                   |
+
+### Assignments
+
+| Method | Endpoint                      | Description                          |
+| ------ | ----------------------------- | ------------------------------------ |
+| GET    | `/api/assignments`            | Get all assignments                  |
+| GET    | `/api/assignments/:id`        | Get assignment details               |
+| POST   | `/api/assignments`            | Create an assignment (Teacher/Admin) |
+| PUT    | `/api/assignments/:id`        | Update assignment                    |
+| DELETE | `/api/assignments/:id`        | Delete assignment                    |
+| POST   | `/api/assignments/:id/submit` | Submit an assignment (Student)       |
+
+### Discussions
+
+| Method | Endpoint                     | Description                   |
+| ------ | ---------------------------- | ----------------------------- |
+| GET    | `/api/discussions`           | Get all discussions           |
+| GET    | `/api/discussions/:id`       | Get a discussion with replies |
+| POST   | `/api/discussions`           | Create a discussion           |
+| PUT    | `/api/discussions/:id`       | Update a discussion           |
+| DELETE | `/api/discussions/:id`       | Delete a discussion           |
+| POST   | `/api/discussions/:id/reply` | Reply to a discussion         |
 
 ---
 
-# Future Modules
+## Authentication
 
-- Advanced Analytics & Reports
-- Enhanced Role-Based Access Control (RBAC)
-- Notification System
-- Discussion Forum
-- Calendar Integration
-- File Upload System
-- Admin Panel
-- Settings Management
-- Real-Time Chat
+All protected API endpoints require a valid JWT token in the `Authorization` header.
+
+```http
+Authorization: Bearer <your_jwt_token>
+```
 
 ---
 
-# License
+## Team Members
 
-This project is developed for educational and internship purposes as part of the **SoftiqTech Internship Program**.
+| Member           | Role                               |
+| ---------------- | ---------------------------------- |
+| Muhammad Fahad   | Full Stack Developer               |
+| M. Bashar Sheikh | Full Stack Developer               |
+| Ayesha Khan      | Full Stack Developer (Team Leader) |
+| Sameen Ali       | Frontend Developer                 |
 
-### Built by Team C — SoftiqTech Internship
+---
+
+## Project Status
+
+| Phase   | Focus                             | Status |
+| ------- | --------------------------------- | ------ |
+| Phase 1 | Authentication & Setup            | 100%   |
+| Phase 2 | Course APIs & Teacher APIs        | 100%   |
+| Phase 3 | Quiz & Assignment APIs            | 100%   |
+| Phase 4 | Discussions, Notifications & Chat | 90%    |
+| Phase 5 | Admin Panel, Testing & Deployment | 100%   |
+
+---
+
+## Live Backend
+
+https://bashartc14-lms.hf.space
+
+---
+
+## Project Information
+
+**Built by:** Team C — SoftiqTech Internship
+
+**Last Updated:** 30-Aug-2026
+
+```
+```
