@@ -89,7 +89,7 @@ export default function StudentDashboard() {
       {/* HEADER */}
       {/* ===================================================== */}
 
-      <header className="flex h-[100px] items-center justify-between border-b border-[#edf0f1] bg-white px-8">
+      <header className="flex min-h-[100px] items-center justify-between border-b border-[#edf0f1] bg-white px-8 py-4">
         {/* Welcome */}
         <div>
           <div className="flex items-center gap-2">
@@ -109,8 +109,11 @@ export default function StudentDashboard() {
           </p>
         </div>
 
-        {/* Header Actions */}
-        <div className="flex items-center gap-7">
+        {/* ===================================================== */}
+        {/* HEADER ACTIONS */}
+        {/* ===================================================== */}
+
+        <div className="flex items-center gap-5">
           {/* Streak */}
           <Link
             href="/student/streak"
@@ -159,6 +162,34 @@ export default function StudentDashboard() {
             </div>
           </Link>
 
+          {/* ===================================================== */}
+          {/* ASSIGNMENTS */}
+          {/* ===================================================== */}
+
+          <Link
+            href="/student/assignments"
+            className="flex items-center gap-3 rounded-lg p-2 transition hover:bg-[#f4fafa]"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#edf8f8]">
+              <ClipboardCheck
+                size={18}
+                className="text-[#00999d]"
+              />
+            </div>
+
+            <div>
+              <p className="text-[15px] font-semibold text-[#172636]">
+                Assignments
+              </p>
+
+              <p className="text-[8px] font-medium text-[#00999d]">
+                View & Submit
+              </p>
+            </div>
+          </Link>
+
+          <div className="h-9 w-px bg-[#e9edef]" />
+
           {/* Notifications */}
           <Link
             href="/notifications"
@@ -184,7 +215,9 @@ export default function StudentDashboard() {
         {/* ===================================================== */}
 
         <div className="grid grid-cols-12 gap-5">
+          {/* ===================================================== */}
           {/* DAILY PROGRESS */}
+          {/* ===================================================== */}
 
           <div className="col-span-4 rounded-xl border border-[#e7ebed] bg-white p-6">
             <h2 className="text-[13px] font-semibold text-[#172636]">
@@ -284,7 +317,9 @@ export default function StudentDashboard() {
             </Link>
           </div>
 
+          {/* ===================================================== */}
           {/* FOCUS OF THE DAY */}
+          {/* ===================================================== */}
 
           <div className="col-span-4 rounded-xl border border-[#e7ebed] bg-white p-6">
             <div className="flex items-start justify-between">
@@ -344,7 +379,9 @@ export default function StudentDashboard() {
             </div>
           </div>
 
+          {/* ===================================================== */}
           {/* UPCOMING MILESTONES */}
+          {/* ===================================================== */}
 
           <div className="col-span-4 rounded-xl border border-[#e7ebed] bg-white p-6">
             <h2 className="text-[13px] font-semibold text-[#172636]">
@@ -398,6 +435,61 @@ export default function StudentDashboard() {
             </Link>
           </div>
         </div>
+
+        {/* ===================================================== */}
+        {/* ASSIGNMENTS SECTION */}
+        {/* ===================================================== */}
+
+        <section className="mt-7">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-[13px] font-semibold text-[#172636]">
+                Assignments
+              </h2>
+
+              <p className="mt-1 text-[9px] text-[#849097]">
+                View your assignments and submit your work.
+              </p>
+            </div>
+
+            <Link
+              href="/student/assignments"
+              className="flex items-center gap-1 text-[9px] font-semibold text-[#00999d] transition hover:text-[#007b80]"
+            >
+              View All
+              <ChevronRight size={12} />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            {/* Assignment 1 */}
+            <AssignmentCard
+              href="/student/assignments"
+              title="Data Science Project"
+              course="Data Science 101"
+              dueDate="May 24"
+              status="Pending"
+            />
+
+            {/* Assignment 2 */}
+            <AssignmentCard
+              href="/student/assignments"
+              title="Sorting Algorithms"
+              course="Algorithms & Design"
+              dueDate="May 27"
+              status="Pending"
+            />
+
+            {/* Assignment 3 */}
+            <AssignmentCard
+              href="/student/assignments"
+              title="Business Analysis Report"
+              course="Business Analytics"
+              dueDate="May 30"
+              status="Submitted"
+            />
+          </div>
+        </section>
 
         {/* ===================================================== */}
         {/* ACTIVE COURSES */}
@@ -525,6 +617,77 @@ function Milestone({
         <p className="text-[7px] text-[#8b969c]">
           {subtitle}
         </p>
+      </div>
+    </Link>
+  );
+}
+
+/* ============================================================= */
+/* ASSIGNMENT CARD COMPONENT */
+/* ============================================================= */
+
+function AssignmentCard({
+  href,
+  title,
+  course,
+  dueDate,
+  status,
+}: {
+  href: string;
+  title: string;
+  course: string;
+  dueDate: string;
+  status: "Pending" | "Submitted";
+}) {
+  const isSubmitted = status === "Submitted";
+
+  return (
+    <Link
+      href={href}
+      className="group rounded-xl border border-[#e5e9ea] bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-[#b8dfe0] hover:shadow-md"
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#e8f7f7]">
+          <ClipboardCheck
+            size={19}
+            className="text-[#00999d]"
+          />
+        </div>
+
+        <span
+          className={`rounded-full px-2.5 py-1 text-[8px] font-medium ${
+            isSubmitted
+              ? "bg-[#e8f7ef] text-[#218653]"
+              : "bg-[#fff5df] text-[#b87900]"
+          }`}
+        >
+          {status}
+        </span>
+      </div>
+
+      <h3 className="mt-4 text-[11px] font-semibold text-[#172636] transition group-hover:text-[#00999d]">
+        {title}
+      </h3>
+
+      <p className="mt-1 text-[8px] text-[#849097]">
+        {course}
+      </p>
+
+      <div className="mt-4 flex items-center justify-between border-t border-[#edf0f1] pt-3">
+        <div>
+          <p className="text-[7px] text-[#9aa5aa]">
+            Due Date
+          </p>
+
+          <p className="mt-0.5 text-[8px] font-medium text-[#172636]">
+            {dueDate}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-1 text-[8px] font-semibold text-[#00999d]">
+          {isSubmitted ? "View" : "Submit"}
+          <ChevronRight size={11} />
+        </div>
       </div>
     </Link>
   );

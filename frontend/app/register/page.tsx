@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, Suspense } from "react";
@@ -8,9 +9,10 @@ function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Get role from URL:
+  // Get role from URL
   // /register?role=student
   // /register?role=faculty
+  // /register?role=admin
   const selectedRole = searchParams.get("role") || "student";
 
   const [showPassword, setShowPassword] = useState(false);
@@ -24,6 +26,16 @@ function RegisterForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Display role nicely
+  const roleName =
+    selectedRole === "faculty"
+      ? "Faculty"
+      : selectedRole === "teacher"
+        ? "Teacher"
+        : selectedRole === "admin"
+          ? "Admin"
+          : "Student";
 
   const handleRegister = async (
     e: React.FormEvent<HTMLFormElement>
@@ -44,7 +56,9 @@ function RegisterForm() {
     setLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_URL ||
+        "http://localhost:5001/api";
 
       console.log("API URL:", apiUrl);
       console.log("REGISTERING AS:", selectedRole);
@@ -58,7 +72,7 @@ function RegisterForm() {
           name: fullName,
           email: email,
           password: password,
-          role: selectedRole === "faculty" ? "faculty" : "student",
+          role: selectedRole,
         }),
       });
 
@@ -85,22 +99,25 @@ function RegisterForm() {
         return;
       }
 
-      // Save token
-      localStorage.setItem("token", data.token);
+      // Save token if backend sends one
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
-      // Save user
-      localStorage.setItem(
-        "user",
-        JSON.stringify(data.user)
-      );
+      // Save registered user if backend sends user data
+      if (data.user) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify(data.user)
+        );
+      }
 
       setSuccess("Registration successful! Please login.");
 
-// Redirect to login page instead
-setTimeout(() => {
-  router.push("/login");
-}, 1000);
-
+      // Keep selected role while going to login
+      setTimeout(() => {
+        router.push(`/login?role=${selectedRole}`);
+      }, 1000);
     } catch (error) {
       console.error("Registration error:", error);
 
@@ -114,7 +131,6 @@ setTimeout(() => {
 
   return (
     <main className="grid min-h-screen lg:grid-cols-2">
-
       {/* LEFT SIDE - IMAGE */}
       <section className="relative hidden min-h-screen lg:block">
         <img
@@ -129,7 +145,6 @@ setTimeout(() => {
       {/* RIGHT SIDE - REGISTER FORM */}
       <section className="flex min-h-screen items-center justify-center bg-white px-6 py-10 sm:px-10">
         <div className="w-full max-w-[420px]">
-
           {/* LOGO */}
           <div className="mb-7 flex justify-center">
             <Link
@@ -185,8 +200,7 @@ setTimeout(() => {
 
             {/* Shows selected role */}
             <p className="mt-2 text-xs font-semibold text-[#087F87]">
-              Registering as:{" "}
-              {selectedRole === "faculty" ? "Faculty" : "Student"}
+              Registering as: {roleName}
             </p>
           </div>
 
@@ -209,7 +223,6 @@ setTimeout(() => {
             onSubmit={handleRegister}
             className="space-y-4"
           >
-
             {/* FULL NAME */}
             <div>
               <label
@@ -272,7 +285,9 @@ setTimeout(() => {
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? "◉" : "◌"}
@@ -293,7 +308,9 @@ setTimeout(() => {
                 <input
                   id="confirmPassword"
                   type={
-                    showConfirmPassword ? "text" : "password"
+                    showConfirmPassword
+                      ? "text"
+                      : "password"
                   }
                   placeholder="Confirm your password"
                   value={confirmPassword}
@@ -307,7 +324,9 @@ setTimeout(() => {
                 <button
                   type="button"
                   onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
+                    setShowConfirmPassword(
+                      !showConfirmPassword
+                    )
                   }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
@@ -326,20 +345,32 @@ setTimeout(() => {
                 ? "Creating Account..."
                 : "Create Account"}
             </button>
-
           </form>
 
           {/* LOGIN LINK */}
           <p className="mt-5 text-center text-xs text-slate-600">
             Already have an account?{" "}
             <Link
-              href="/login"
+              href={
+                selectedRole
+                  ? `/login?role=${selectedRole}`
+                  : "/login"
+              }
               className="font-semibold text-[#087F87] hover:underline"
             >
               Sign In
             </Link>
           </p>
 
+          {/* CHANGE ROLE */}
+          <div className="mt-3 text-center">
+            <Link
+              href="/"
+              className="text-xs text-slate-500 hover:text-[#087F87] hover:underline"
+            >
+              ← Change role
+            </Link>
+          </div>
         </div>
       </section>
     </main>

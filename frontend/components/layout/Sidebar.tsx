@@ -14,6 +14,7 @@ import {
   Bell,
   Settings,
   LogOut,
+<<<<<<< HEAD
   Users,
   FileText,
   BarChart3,
@@ -54,13 +55,75 @@ const adminNav = [
   { label: "File Upload", icon: BookOpen, href: "/admin/upload" },
   { label: "Export Reports", icon: FileText, href: "/admin/reports" },
   { label: "Settings", icon: Settings, href: "/admin/setting" },
+=======
+  ClipboardCheck,
+  MessageCircle,
+} from "lucide-react";
+
+const navigation = [
+  {
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    href: "/student",
+  },
+  {
+    label: "My Courses",
+    icon: BookOpen,
+    href: "/courses",
+  },
+  {
+    label: "Calendar",
+    icon: CalendarDays,
+    href: "/student/calendar",
+  },
+  {
+    label: "Assignments",
+    icon: ClipboardCheck,
+    href: "/student/assignments",
+  },
+  {
+    label: "Quizzes",
+    icon: Brain,
+    href: "/quizzes",
+  },
+  {
+    label: "My Progress",
+    icon: ChartNoAxesColumnIncreasing,
+    href: "/student/progress",
+  },
+  {
+    label: "Certificates",
+    icon: Award,
+    href: "/student/certificates",
+  },
+  {
+    label: "Discussions",
+    icon: MessageCircle,
+    href: "/student/discussions",
+  },
+  {
+    label: "Notifications",
+    icon: Bell,
+    href: "/notifications",
+  },
+  {
+    label: "Settings",
+    icon: Settings,
+    href: "/settings",
+  },
+>>>>>>> 660816332c00bd1d24e7968385e3509d3f9a348a
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+<<<<<<< HEAD
   const [userName, setUserName] = useState("User");
   const [userRole, setUserRole] = useState("student");
+=======
+
+  const [userName, setUserName] = useState("Student");
+>>>>>>> 660816332c00bd1d24e7968385e3509d3f9a348a
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -92,13 +155,21 @@ export default function Sidebar() {
   const userInitial = userName.charAt(0).toUpperCase();
 
   const isActive = (href: string) => {
+<<<<<<< HEAD
     if (href === "#") return false;
+=======
+    if (href === "/student") {
+      return pathname === "/student";
+    }
+
+>>>>>>> 660816332c00bd1d24e7968385e3509d3f9a348a
     return pathname === href || pathname.startsWith(href + "/");
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
     router.push("/login");
   };
 
@@ -118,15 +189,21 @@ export default function Sidebar() {
           <h1 className="text-[16px] font-semibold leading-none">
             Nexus
           </h1>
+<<<<<<< HEAD
           <p className="mt-1 text-[13px] text-white/90 capitalize">
             {userRole}
+=======
+
+          <p className="mt-1 text-[13px] text-white/70">
+            Learning
+>>>>>>> 660816332c00bd1d24e7968385e3509d3f9a348a
           </p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 pt-5">
-        <div className="space-y-2">
+      <nav className="flex-1 overflow-y-auto px-3 pt-3">
+        <div className="space-y-1.5">
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -135,7 +212,7 @@ export default function Sidebar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`flex h-[44px] items-center gap-4 rounded-lg px-4 text-[13px] transition ${
+                className={`flex h-[44px] items-center gap-4 rounded-lg px-4 text-[13px] transition-all ${
                   active
                     ? "bg-[#08a7aa] text-white shadow-sm"
                     : "text-white/65 hover:bg-white/5 hover:text-white"
@@ -147,8 +224,13 @@ export default function Sidebar() {
             );
           })}
 
+<<<<<<< HEAD
           {/* LOGOUT BUTTON */}
+=======
+          {/* Logout */}
+>>>>>>> 660816332c00bd1d24e7968385e3509d3f9a348a
           <button
+            type="button"
             onClick={handleLogout}
             className="flex h-[44px] w-full items-center gap-4 rounded-lg px-4 text-[13px] text-white/65 transition hover:bg-white/5 hover:text-white"
           >
@@ -158,11 +240,11 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* User Profile */}
-      <div className="border-t border-white/10 p-5">
+      {/* Student Profile */}
+      <div className="border-t border-white/10 p-4">
         <Link
           href="/profile"
-          className="flex items-center gap-3 rounded-lg p-1 transition hover:bg-white/5"
+          className="flex items-center gap-3 rounded-lg p-2 transition hover:bg-white/5"
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#08a7aa] text-sm font-semibold">
             {userInitial}
@@ -177,8 +259,23 @@ export default function Sidebar() {
             </p>
           </div>
 
+<<<<<<< HEAD
           <span className="ml-auto text-lg text-white/50">›</span>
+=======
+          <span className="ml-auto text-lg text-white/40">
+            ›
+          </span>
+>>>>>>> 660816332c00bd1d24e7968385e3509d3f9a348a
         </Link>
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="mt-2 flex h-[42px] w-full items-center gap-4 rounded-lg px-4 text-[13px] text-white/65 transition hover:bg-red-500/10 hover:text-red-300"
+        >
+          <LogOut size={18} strokeWidth={1.7} />
+          <span>Logout</span>
+        </button>
       </div>
     </aside>
   );

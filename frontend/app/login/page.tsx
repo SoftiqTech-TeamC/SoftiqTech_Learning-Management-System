@@ -1,11 +1,15 @@
+
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const selectedRole = searchParams.get("role");
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,6 +25,13 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
+    // Role is required because it comes from the role selection page
+    if (!selectedRole) {
+      setError("Please select your role before signing in.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(`https://bashartc14-lms.hf.space/api/auth/login`,
         {
@@ -31,29 +42,42 @@ export default function LoginPage() {
           body: JSON.stringify({
             email,
             password,
+            role: selectedRole,
           }),
         }
       );
 
       const data = await response.json();
 
-          // ✅ Handle 403 Forbidden - Role mismatch
-    if (response.status === 403) {
-      setError(data.message || "Invalid role for this account.");
-      return;
-    }
+      console.log("LOGIN RESPONSE:", data);
 
-      console.log("LOGIN USER:", data.user);
+      // Role mismatch
+      if (response.status === 403) {
+        setError(
+          data.message ||
+            "The selected role does not match this account."
+        );
+        return;
+      }
 
+      // Other errors
       if (!response.ok) {
         if (response.status === 401) {
           setError("Invalid email or password.");
         } else if (response.status === 400) {
-          setError("Please enter your email and password.");
+          setError(
+            data.message || "Please enter your email and password."
+          );
         } else {
           setError(data.message || "Login failed. Please try again.");
         }
 
+        return;
+      }
+
+      // Make sure user data exists
+      if (!data.user) {
+        setError("Login successful, but user information was not received.");
         return;
       }
 
@@ -63,11 +87,20 @@ export default function LoginPage() {
       // Save logged-in user
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Redirect based on user role
-      if (data.user?.role === "faculty") {
+      console.log("LOGIN USER:", data.user);
+
+      // Get actual role from backend
+      const userRole = data.user.role?.toLowerCase();
+
+      // Redirect according to backend role
+      if (userRole === "admin") {
+        router.push("/admin");
+      } else if (userRole === "teacher" || userRole === "faculty") {
         router.push("/teacher");
-      } else {
+      } else if (userRole === "student") {
         router.push("/student");
+      } else {
+        setError("Unknown user role. Please contact the administrator.");
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -79,6 +112,18 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  // Display role name nicely
+  const roleName =
+    selectedRole === "faculty"
+      ? "Faculty"
+      : selectedRole === "teacher"
+        ? "Teacher"
+        : selectedRole === "student"
+          ? "Student"
+          : selectedRole === "admin"
+            ? "Admin"
+            : "";
 
   return (
     <main className="grid min-h-screen lg:grid-cols-2">
@@ -142,6 +187,13 @@ export default function LoginPage() {
             <p className="mt-2 text-base text-slate-500">
               Sign in to continue your learning journey.
             </p>
+
+            {/* Selected Role */}
+            {roleName && (
+              <div className="mt-4 inline-flex items-center rounded-full bg-[#087F87]/10 px-4 py-2 text-sm font-semibold text-[#087F87]">
+                Signing in as {roleName}
+              </div>
+            )}
           </div>
 
           {/* Error */}
@@ -246,12 +298,26 @@ export default function LoginPage() {
           <p className="mt-8 text-center text-sm text-slate-600">
             Don't have an account?{" "}
             <Link
-              href="/register"
+              href={
+                selectedRole
+                  ? `/register?role=${selectedRole}`
+                  : "/register"
+              }
               className="font-semibold text-[#087F87] hover:underline"
             >
               Register Now
             </Link>
           </p>
+
+          {/* Change Role */}
+          <div className="mt-4 text-center">
+            <Link
+              href="/"
+              className="text-sm text-slate-500 hover:text-[#087F87] hover:underline"
+            >
+              ← Change role
+            </Link>
+          </div>
         </div>
       </section>
     </main>
