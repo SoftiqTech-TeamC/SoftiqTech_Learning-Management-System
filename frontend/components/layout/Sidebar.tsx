@@ -14,55 +14,53 @@ import {
   Bell,
   Settings,
   LogOut,
+  Users,
+  FileText,
+  BarChart3,
+  MessageSquare,
+  Shield,
 } from "lucide-react";
 
-const navigation = [
-  {
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/student",
-  },
-  {
-    label: "My Courses",
-    icon: BookOpen,
-    href: "/courses",
-  },
-  {
-    label: "Calendar",
-    icon: CalendarDays,
-    href: "/student/calendar",
-  },
-  {
-    label: "Quizzes",
-    icon: Brain,
-    href: "/quizzes",
-  },
-  {
-    label: "My Progress",
-    icon: ChartNoAxesColumnIncreasing,
-    href: "/student/progress",
-  },
-  {
-    label: "Certificates",
-    icon: Award,
-    href: "/student/certificates",
-  },
-  {
-    label: "Notifications",
-    icon: Bell,
-    href: "/notifications",
-  },
-  {
-    label: "Settings",
-    icon: Settings,
-    href: "/settings",
-  },
+// Student Navigation
+const studentNav = [
+  { label: "Dashboard", icon: LayoutDashboard, href: "/student" },
+  { label: "My Courses", icon: BookOpen, href: "/courses" },
+  { label: "Calendar", icon: CalendarDays, href: "/student/calendar" },
+  { label: "Quizzes", icon: Brain, href: "/quizzes" },
+  { label: "My Progress", icon: ChartNoAxesColumnIncreasing, href: "/student/progress" },
+  { label: "Certificates", icon: Award, href: "/student/certificates" },
+  { label: "Notifications", icon: Bell, href: "/notifications" },
+  { label: "Settings", icon: Settings, href: "/settings" },
+];
+
+// Teacher Navigation
+const teacherNav = [
+  { label: "Dashboard", icon: LayoutDashboard, href: "/teacher" },
+  { label: "My Courses", icon: BookOpen, href: "/teacher/courses" },
+  { label: "Assignments", icon: FileText, href: "/teacher/assignments" },
+  { label: "Quizzes", icon: Brain, href: "/teacher/quizzes" },
+  { label: "Students", icon: Users, href: "/teacher/students" },
+  { label: "Analytics", icon: BarChart3, href: "/teacher/analytics" },
+  { label: "Messages", icon: MessageSquare, href: "/teacher/messages" },
+  { label: "Notifications", icon: Bell, href: "/notifications" },
+  { label: "Settings", icon: Settings, href: "/settings" },
+];
+
+// Admin Navigation
+const adminNav = [
+  { label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
+  { label: "Permissions", icon: Shield, href: "/admin/permissions" },
+  { label: "Analytics", icon: BarChart3, href: "/admin/analytics" },
+  { label: "File Upload", icon: BookOpen, href: "/admin/upload" },
+  { label: "Export Reports", icon: FileText, href: "/admin/reports" },
+  { label: "Settings", icon: Settings, href: "/admin/setting" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [userName, setUserName] = useState("Student");
+  const [userName, setUserName] = useState("User");
+  const [userRole, setUserRole] = useState("student");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -74,21 +72,30 @@ export default function Sidebar() {
         if (user?.name) {
           setUserName(user.name);
         }
+        if (user?.role) {
+          setUserRole(user.role);
+        }
       } catch (error) {
         console.error("Unable to read user data:", error);
       }
     }
   }, []);
 
+  // Get navigation based on role
+  const getNavigation = () => {
+    if (userRole === "teacher") return teacherNav;
+    if (userRole === "admin") return adminNav;
+    return studentNav;
+  };
+
+  const navigation = getNavigation();
   const userInitial = userName.charAt(0).toUpperCase();
 
   const isActive = (href: string) => {
     if (href === "#") return false;
-    if (href === "/student") return pathname === "/student";
     return pathname === href || pathname.startsWith(href + "/");
   };
 
-  // LOGOUT FUNCTION
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -111,9 +118,8 @@ export default function Sidebar() {
           <h1 className="text-[16px] font-semibold leading-none">
             Nexus
           </h1>
-
-          <p className="mt-1 text-[13px] text-white/90">
-            Learning
+          <p className="mt-1 text-[13px] text-white/90 capitalize">
+            {userRole}
           </p>
         </div>
       </div>
@@ -135,25 +141,18 @@ export default function Sidebar() {
                     : "text-white/65 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <Icon
-                  size={18}
-                  strokeWidth={1.7}
-                />
-
+                <Icon size={18} strokeWidth={1.7} />
                 <span>{item.label}</span>
               </Link>
             );
           })}
 
-          {/* LOGOUT BUTTON - SEPARATE FROM NAVIGATION */}
+          {/* LOGOUT BUTTON */}
           <button
             onClick={handleLogout}
             className="flex h-[44px] w-full items-center gap-4 rounded-lg px-4 text-[13px] text-white/65 transition hover:bg-white/5 hover:text-white"
           >
-            <LogOut
-              size={18}
-              strokeWidth={1.7}
-            />
+            <LogOut size={18} strokeWidth={1.7} />
             <span>Logout</span>
           </button>
         </div>
@@ -173,15 +172,12 @@ export default function Sidebar() {
             <p className="truncate text-[13px] font-medium">
               {userName}
             </p>
-
             <p className="mt-1 text-[10px] text-white/50">
               View Profile
             </p>
           </div>
 
-          <span className="ml-auto text-lg text-white/50">
-            ›
-          </span>
+          <span className="ml-auto text-lg text-white/50">›</span>
         </Link>
       </div>
     </aside>

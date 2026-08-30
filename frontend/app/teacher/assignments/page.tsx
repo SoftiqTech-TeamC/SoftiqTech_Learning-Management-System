@@ -39,7 +39,7 @@ type Course = {
 };
 
 export default function AssignmentsPage() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_URL = 'https://bashartc14-lms.hf.space';
 
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);

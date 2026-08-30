@@ -56,7 +56,8 @@ type AssignmentRow = Assignment & {
 };
 
 export default function AssignmentsPage() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  // ✅ HARDCODED URL - REPLACED process.env.NEXT_PUBLIC_API_URL
+  const API_URL = "https://bashartc14-lms.hf.space/api";
 
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);

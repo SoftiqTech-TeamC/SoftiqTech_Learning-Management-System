@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 type Course = {
+  _id?: string;
   title: string;
   image: string;
   description: string;
@@ -54,6 +55,7 @@ type Course = {
 
 const courses: Record<string, Course> = {
   "data-science": {
+    _id: "6a84653a24dfb7e6ed79a6b7",
     title: "Data Science",
     image: "/courses/data-science.jpg",
     description:
@@ -118,6 +120,7 @@ const courses: Record<string, Course> = {
   },
 
   "ai-ml": {
+    _id: "6a84653a24dfb7e6ed79a6b8",
     title: "AI & ML Fundamentals",
     image: "/courses/ai.jpg",
     description:
@@ -182,6 +185,7 @@ const courses: Record<string, Course> = {
   },
 
   "business-strategy": {
+    _id: "6a84653a24dfb7e6ed79a6b9",
     title: "Business Strategy Essentials",
     image: "/courses/business.jpg",
     description:
@@ -246,6 +250,7 @@ const courses: Record<string, Course> = {
   },
 
   "ux-ui": {
+    _id: "6a84653a24dfb7e6ed79a6ba",
     title: "UX/UI Design Masterclass",
     image: "/courses/ux-ui.jpg",
     description:
@@ -310,6 +315,7 @@ const courses: Record<string, Course> = {
   },
 
   cybersecurity: {
+    _id: "6a84653a24dfb7e6ed79a6bb",
     title: "Cybersecurity Essentials",
     image: "/courses/cybersecurity.jpg",
     description:
@@ -374,6 +380,7 @@ const courses: Record<string, Course> = {
   },
 
   "digital-photography": {
+    _id: "6a84653a24dfb7e6ed79a6bc",
     title: "Digital Photography Pro",
     image: "/courses/photography.jpg",
     description:
@@ -438,6 +445,7 @@ const courses: Record<string, Course> = {
   },
 
   astrophysics: {
+    _id: "6a84653a24dfb7e6ed79a6bd",
     title: "Introduction to Astrophysics",
     image: "/courses/astrophysics.jpg",
     description:
@@ -502,6 +510,7 @@ const courses: Record<string, Course> = {
   },
 
   sustainability: {
+    _id: "6a84653a24dfb7e6ed79a6be",
     title: "Sustainability in Business",
     image: "/courses/sustainability.jpg",
     description:
@@ -582,7 +591,9 @@ export default function CourseDetailsPage({
   const [enrollSuccess, setEnrollSuccess] = useState("");
   const [isEnrolled, setIsEnrolled] = useState(false);
 
-  const course = courses[slug];
+  const course =
+  courses[slug] ||
+  courses[Object.keys(courses).find((k) => slug.startsWith(k) || k.startsWith(slug) || k.split("-")[0] === slug.split("-")[0]) || ""];
 
   // ENROLL FUNCTION
   const handleEnroll = async () => {
@@ -928,7 +939,7 @@ export default function CourseDetailsPage({
                 </span>
               </div>
 
-              {/* ENROLL BUTTON - NOW WITH FUNCTIONALITY */}
+              {/* ENROLL BUTTON WITH FUNCTIONALITY */}
               {enrollError && (
                 <div className="mt-2 rounded-md bg-red-50 p-2 text-sm text-red-600">
                   {enrollError}

@@ -22,8 +22,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+      const response = await fetch(`https://bashartc14-lms.hf.space/api/auth/login`,
         {
           method: "POST",
           headers: {

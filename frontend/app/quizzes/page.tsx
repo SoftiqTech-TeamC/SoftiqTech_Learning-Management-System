@@ -55,8 +55,9 @@ export default function QuizzesPage() {
 
       const token = localStorage.getItem("token");
 
+      // ✅ HARDCODED URL - REPLACED process.env.NEXT_PUBLIC_API_URL
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/quizzes`,
+        `https://bashartc14-lms.hf.space/api/quizzes`,
         {
           method: "GET",
           headers: {
